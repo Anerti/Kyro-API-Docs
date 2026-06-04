@@ -611,6 +611,30 @@ components:
           required:
             - confirmPassword
 
+    ChangePasswordRequest:
+      type: object
+      required:
+        - currentPassword
+        - newPassword
+        - confirmPassword
+      properties:
+        currentPassword:
+          type: string
+          format: password
+          description: Current password for verification
+          example: 0ldP@ss123
+        newPassword:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 255
+          example: N3wS3cur3P@ss
+        confirmPassword:
+          type: string
+          format: password
+          description: Must match `newPassword`
+          example: N3wS3cur3P@ss
+
   responses:
     Unauthorized:
       description: Missing, invalid or expired token
@@ -749,6 +773,65 @@ paths:
                 status: 422
                 error: Unprocessable Entity
                 message: "At least one of email or username is required"
+
+  /auth/change-password:
+    post:
+      tags:
+        - Authentication
+      summary: Change my password
+      description: >-
+        Change the authenticated user's password.
+        Requires the current password for verification.
+      operationId: changePassword
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 200
+                error: OK
+                message: Password changed successfully
+        '400':
+          description: Malformed request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 400
+                error: Bad Request
+                message: Malformed request body
+        '401':
+          description: Current password is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 401
+                error: Unauthorized
+                message: Current password is incorrect
+        '422':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 422
+                error: Unprocessable Entity
+                message: Passwords do not match or do not meet security requirements
 
   # ──────────── Users ────────────
   /users/me:
