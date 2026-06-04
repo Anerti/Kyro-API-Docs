@@ -673,6 +673,7 @@ components:
         - status
         - createdAt
         - updatedAt
+        - owner
       properties:
         id:
           type: string
@@ -696,6 +697,9 @@ components:
           nullable: true
         status:
           $ref: '#/components/schemas/OrganizationStatus'
+        owner:
+          $ref: '#/components/schemas/UserProfile'
+          description: The authenticated user who owns this organization
         createdAt:
           type: string
           format: date-time
