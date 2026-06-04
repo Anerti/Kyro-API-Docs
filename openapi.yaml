@@ -547,6 +547,14 @@ components:
         - loginAttempt
         - createdAt
 
+    UpdateIpAddressStatusRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: '#/components/schemas/IpAddressStatus'
+
     # ──────────── Auth ────────────
     LoginRequest:
       type: object
@@ -1296,6 +1304,50 @@ paths:
           $ref: '#/components/responses/Unauthorized'
 
   /users/me/ip-addresses/{ipAddressId}:
+    patch:
+      tags:
+        - IP Addresses
+      summary: Update IP address status
+      description: Changes the status of an IP address (active, inactive, or banned).
+      operationId: updateIpAddressStatus
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: ipAddressId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateIpAddressStatusRequest'
+      responses:
+        '200':
+          description: IP address status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IpAddressResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Invalid status value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 422
+                error: Unprocessable Entity
+                message: "Invalid status. Allowed: active, inactive, banned"
     delete:
       tags:
         - IP Addresses
