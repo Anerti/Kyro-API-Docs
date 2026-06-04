@@ -498,6 +498,10 @@ components:
           type: number
           format: double
           example: 850.50
+        loan:
+          type: number
+          format: double
+          example: 200.00
         balance:
           type: number
           format: double
@@ -509,6 +513,7 @@ components:
         - key
         - income
         - expense
+        - loan
         - balance
         - count
 
@@ -523,6 +528,10 @@ components:
           type: number
           format: double
           example: 3200.00
+        totalLoan:
+          type: number
+          format: double
+          example: 800.00
         balance:
           type: number
           format: double
@@ -537,6 +546,7 @@ components:
       required:
         - totalIncome
         - totalExpense
+        - totalLoan
         - balance
         - count
         - groups
@@ -1293,6 +1303,26 @@ paths:
                 $ref: '#/components/schemas/TransactionSummaryResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '400':
+          description: Malformed query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 400
+                error: Bad Request
+                message: "Invalid date format. Expected YYYY-MM-DD"
+        '422':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 422
+                error: Unprocessable Entity
+                message: "Invalid groupBy value. Allowed: day, week, month, category"
 
   /transactions/{transactionId}:
     get:
