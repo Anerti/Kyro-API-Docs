@@ -118,11 +118,6 @@ components:
           type: string
           maxLength: 100
           example: Doe
-        email:
-          type: string
-          format: email
-          maxLength: 100
-          example: john.d@email.com
         username:
           type: string
           maxLength: 100
@@ -136,6 +131,23 @@ components:
           description: Required if accountType is `organization`
           example: Acme Corp
       minProperties: 1
+
+    UpdateEmailRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 100
+          example: new.email@domain.com
+        password:
+          type: string
+          format: password
+          description: Current password for verification
+          example: s3cur3P@ss
 
     UserResponse:
       type: object
@@ -885,7 +897,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '409':
-          description: Email or username already taken
+          description: Username already taken
           content:
             application/json:
               schema:
@@ -893,7 +905,7 @@ paths:
               example:
                 status: 409
                 error: Conflict
-                message: "Email or username already taken"
+                message: "Username already taken"
         '422':
           description: Invalid input data
           content:
@@ -918,6 +930,69 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+
+  /users/me/email:
+    patch:
+      tags:
+        - Users
+      summary: Update my email
+      description: Changes the authenticated user's email. Requires the current password for verification.
+      operationId: updateMyEmail
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmailRequest'
+      responses:
+        '200':
+          description: Email updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Malformed request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 400
+                error: Bad Request
+                message: Malformed request body
+        '401':
+          description: Current password is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 401
+                error: Unauthorized
+                message: Current password is incorrect
+        '409':
+          description: Email already taken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 409
+                error: Conflict
+                message: Email already taken
+        '422':
+          description: Invalid email format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 422
+                error: Unprocessable Entity
+                message: Invalid email format
 
   # ──────────── Transactions ────────────
   /transactions:
