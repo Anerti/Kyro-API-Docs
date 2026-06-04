@@ -3,10 +3,12 @@ info:
   title: Tetibola API
   description: >-
     Personal finance management API — transactions, categories, currencies,
-    and user connection tracking.
+    organizations, and user connection tracking.
 
     Based on the validated MCD: one user owns N transactions,
     each transaction is linked to one currency and N categories.
+    Users can own or belong to organizations, and transactions
+    can be associated with an organization.
   version: 1.0.0
   contact:
     name: API Support
@@ -105,14 +107,6 @@ components:
           maxLength: 255
           writeOnly: true
           example: s3cur3P@ss
-        accountType:
-          $ref: '#/components/schemas/AccountType'
-        organizationName:
-          type: string
-          nullable: true
-          maxLength: 100
-          description: Required if accountType is `organization`
-          example: Acme Corp
 
     UserUpdateRequest:
       type: object
@@ -130,14 +124,6 @@ components:
           type: string
           maxLength: 100
           example: jdoe
-        accountType:
-          $ref: '#/components/schemas/AccountType'
-        organizationName:
-          type: string
-          nullable: true
-          maxLength: 100
-          description: Required if accountType is `organization`
-          example: Acme Corp
       minProperties: 1
 
     UpdateEmailRequest:
@@ -206,19 +192,12 @@ components:
           type: string
           format: date-time
           example: '2026-06-04T12:00:00Z'
-        accountType:
-          $ref: '#/components/schemas/AccountType'
-        organizationName:
-          type: string
-          nullable: true
-          example: Acme Corp
       required:
         - id
         - email
         - lastName
         - username
         - status
-        - accountType
         - createdAt
         - updatedAt
 
@@ -258,19 +237,12 @@ components:
           type: string
           format: date-time
           example: '2026-06-04T12:00:00Z'
-        accountType:
-          $ref: '#/components/schemas/AccountType'
-        organizationName:
-          type: string
-          nullable: true
-          example: Acme Corp
       required:
         - id
         - email
         - lastName
         - username
         - status
-        - accountType
         - createdAt
         - updatedAt
 
@@ -281,14 +253,6 @@ components:
         - inactive
         - locked
       example: active
-
-    AccountType:
-      type: string
-      enum:
-        - individual
-        - organization
-        - other
-      example: individual
 
     # ──────────── Transaction ────────────
     TransactionCreateRequest:
@@ -337,6 +301,12 @@ components:
           example:
             - Food & Groceries
           description: Category names to associate (optional)
+        organizationId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Link transaction to an organization
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
 
     TransactionUpdateRequest:
       type: object
@@ -376,6 +346,11 @@ components:
           items:
             type: string
             maxLength: 100
+        organizationId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Link transaction to an organization
       minProperties: 1
 
     TransactionResponse:
@@ -424,6 +399,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CategorySummary'
+        organizationId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Organization this transaction belongs to
       required:
         - id
         - amount
@@ -619,6 +599,173 @@ components:
         - AUD
         - ZAR
       example: MGA
+
+    # ──────────── Organization ────────────
+    OrganizationCreateRequest:
+      type: object
+      required:
+        - name
+        - email
+        - country
+        - contact
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          example: Acme Corp
+        description:
+          type: string
+          nullable: true
+          example: Import/export de produits artisanaux malgaches
+        email:
+          type: string
+          format: email
+          maxLength: 100
+          example: contact@acmecorp.mg
+        country:
+          type: string
+          maxLength: 100
+          example: Madagascar
+        contact:
+          type: string
+          maxLength: 30
+          example: +261 34 12 345 67
+        taxId:
+          type: string
+          maxLength: 50
+          nullable: true
+          description: Tax identification number (NIF, SIRET, EIN…)
+          example: 4000012345
+
+    OrganizationUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          nullable: true
+        email:
+          type: string
+          format: email
+          maxLength: 100
+        country:
+          type: string
+          maxLength: 100
+        contact:
+          type: string
+          maxLength: 30
+        taxId:
+          type: string
+          maxLength: 50
+          nullable: true
+      minProperties: 1
+
+    OrganizationResponse:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - country
+        - contact
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        name:
+          type: string
+          example: Acme Corp
+        description:
+          type: string
+          nullable: true
+        email:
+          type: string
+          format: email
+        country:
+          type: string
+        contact:
+          type: string
+        taxId:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/OrganizationStatus'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    OrganizationStatus:
+      type: string
+      enum:
+        - active
+        - inactive
+        - locked
+      example: active
+
+    OrganizationMemberResponse:
+      type: object
+      required:
+        - userId
+        - role
+        - joinedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        firstName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/MemberRole'
+        joinedAt:
+          type: string
+          format: date-time
+        removedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    AddOrganizationMemberRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email of the user to add as member
+        role:
+          $ref: '#/components/schemas/MemberRole'
+
+    UpdateMemberRoleRequest:
+      type: object
+      required:
+        - role
+      properties:
+        role:
+          $ref: '#/components/schemas/MemberRole'
+
+    MemberRole:
+      type: string
+      enum:
+        - admin
+        - member
+      example: member
 
     # ──────────── IP Address ────────────
     IpAddressStatus:
@@ -1940,6 +2087,330 @@ paths:
       responses:
         '204':
           description: IP address link removed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ──────────── Organizations ────────────
+  /organizations:
+    post:
+      tags:
+        - Organizations
+      summary: Create an organization
+      description: Creates a new organization. The authenticated user becomes the owner.
+      operationId: createOrganization
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationCreateRequest'
+      responses:
+        '201':
+          description: Organization created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Name or email already taken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 409
+                error: Conflict
+                message: "Organization name or email already taken"
+    get:
+      tags:
+        - Organizations
+      summary: List my organizations
+      description: Returns organizations the authenticated user owns or is a member of.
+      operationId: listMyOrganizations
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/OrganizationStatus'
+          description: Filter by status
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+          description: Search by name
+      responses:
+        '200':
+          description: List of organizations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrganizationResponse'
+                required:
+                  - data
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /organizations/{organizationId}:
+    get:
+      tags:
+        - Organizations
+      summary: Get organization details
+      operationId: getOrganization
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Organization details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Organizations
+      summary: Update an organization
+      description: Only the owner or an admin can update the organization.
+      operationId: updateOrganization
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationUpdateRequest'
+      responses:
+        '200':
+          description: Organization updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Name or email already taken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 409
+                error: Conflict
+                message: "Organization name or email already taken"
+    delete:
+      tags:
+        - Organizations
+      summary: Delete an organization
+      description: Only the owner can delete the organization.
+      operationId: deleteOrganization
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Organization deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /organizations/{organizationId}/members:
+    get:
+      tags:
+        - Organizations
+      summary: List organization members
+      operationId: listOrganizationMembers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: role
+          in: query
+          schema:
+            $ref: '#/components/schemas/MemberRole'
+          description: Filter by role
+      responses:
+        '200':
+          description: List of members
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrganizationMemberResponse'
+                required:
+                  - data
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags:
+        - Organizations
+      summary: Add a member
+      description: Adds an existing user to the organization by email. Only admins can add members.
+      operationId: addOrganizationMember
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddOrganizationMemberRequest'
+      responses:
+        '201':
+          description: Member added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationMemberResponse'
+        '400':
+          description: User not found or already a member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 400
+                error: Bad Request
+                message: "User not found or already a member"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /organizations/{organizationId}/members/{userId}:
+    patch:
+      tags:
+        - Organizations
+      summary: Update a member's role
+      operationId: updateMemberRole
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMemberRoleRequest'
+      responses:
+        '200':
+          description: Role updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationMemberResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Organizations
+      summary: Remove a member
+      operationId: removeOrganizationMember
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Member removed
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':

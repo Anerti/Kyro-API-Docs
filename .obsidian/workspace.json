@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "b49436cd0def8b27",
+        "id": "a3261517af5b49c0",
         "type": "tabs",
         "children": [
           {
-            "id": "527d7507c5aa1942",
+            "id": "575522e2675afc58",
             "type": "leaf",
             "state": {
               "type": "openapi-view",
@@ -26,16 +26,16 @@
         "type": "tabs",
         "children": [
           {
-            "id": "575522e2675afc58",
+            "id": "0a4742fe797ded29",
             "type": "leaf",
             "state": {
               "type": "canvas",
               "state": {
                 "file": "docs/mcd.canvas",
                 "viewState": {
-                  "x": 398.2977888896452,
-                  "y": 0.8779729654675208,
-                  "zoom": -1.3228622316320673
+                  "x": -1729.0292722312004,
+                  "y": 267.1586920004262,
+                  "zoom": -0.6165528776378899
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -99,7 +99,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "11c5311cdde87728",
@@ -205,13 +206,13 @@
       "openapi-renderer:Open OpenAPI Entry View": false
     }
   },
-  "active": "aa5b66464eb40f8f",
+  "active": "575522e2675afc58",
   "lastOpenFiles": [
-    "docs/openapi.yaml",
-    "openapi.yaml",
-    "mcd.canvas",
-    "docs",
     "docs/mcd.canvas",
+    "docs/openapi.yaml",
+    "mcd.canvas",
+    "openapi.yaml",
+    "docs",
     "README.md",
     "AGENTS.md",
     "Untitled.md",
