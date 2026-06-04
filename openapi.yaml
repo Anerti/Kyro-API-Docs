@@ -547,16 +547,6 @@ components:
         - loginAttempt
         - createdAt
 
-    AddIpAddressRequest:
-      type: object
-      required:
-        - ipAddress
-      properties:
-        ipAddress:
-          type: string
-          maxLength: 255
-          example: 192.168.1.1
-
     # ──────────── Auth ────────────
     LoginRequest:
       type: object
@@ -1304,52 +1294,6 @@ paths:
                   - data
         '401':
           $ref: '#/components/responses/Unauthorized'
-    post:
-      tags:
-        - IP Addresses
-      summary: Add an IP address
-      description: >-
-        Registers an IP address and links it to the authenticated user.
-        If the IP already exists in the IP_address table, the existing
-        record is reused.
-      operationId: addMyIpAddress
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AddIpAddressRequest'
-      responses:
-        '201':
-          description: IP address added
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/IpAddressResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '409':
-          description: IP address already linked to this user
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                status: 409
-                error: Conflict
-                message: "This IP address is already associated with your account"
-        '422':
-          description: Invalid input data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                status: 422
-                error: Unprocessable Entity
-                message: "Invalid IP address format"
 
   /users/me/ip-addresses/{ipAddressId}:
     delete:
