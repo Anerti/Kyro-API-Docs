@@ -4,7 +4,25 @@
     "type": "split",
     "children": [
       {
-        "id": "6ad23876f2d1f066",
+        "id": "b49436cd0def8b27",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "527d7507c5aa1942",
+            "type": "leaf",
+            "state": {
+              "type": "openapi-view",
+              "state": {
+                "file": "docs/openapi.yaml"
+              },
+              "icon": "circle-dot",
+              "title": "OpenAPI View: openapi.yaml"
+            }
+          }
+        ]
+      },
+      {
+        "id": "cb13b306c06ef03e",
         "type": "tabs",
         "children": [
           {
@@ -13,31 +31,18 @@
             "state": {
               "type": "canvas",
               "state": {
-                "file": "mcd.canvas",
+                "file": "docs/mcd.canvas",
                 "viewState": {
-                  "x": -676.430465466631,
-                  "y": 368.1301751613838,
-                  "zoom": -1.4983854993681076
+                  "x": 398.2977888896452,
+                  "y": 0.8779729654675208,
+                  "zoom": -1.3228622316320673
                 }
               },
               "icon": "lucide-layout-dashboard",
               "title": "mcd"
             }
-          },
-          {
-            "id": "527d7507c5aa1942",
-            "type": "leaf",
-            "state": {
-              "type": "openapi-view",
-              "state": {
-                "file": "openapi.yaml"
-              },
-              "icon": "circle-dot",
-              "title": "OpenAPI View: openapi.yaml"
-            }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -200,10 +205,15 @@
       "openapi-renderer:Open OpenAPI Entry View": false
     }
   },
-  "active": "527d7507c5aa1942",
+  "active": "aa5b66464eb40f8f",
   "lastOpenFiles": [
-    "mcd.canvas",
+    "docs/openapi.yaml",
     "openapi.yaml",
+    "mcd.canvas",
+    "docs",
+    "docs/mcd.canvas",
+    "README.md",
+    "AGENTS.md",
     "Untitled.md",
     "Welcome.md"
   ]
