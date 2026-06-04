@@ -97,6 +97,14 @@ components:
           maxLength: 255
           writeOnly: true
           example: s3cur3P@ss
+        accountType:
+          $ref: '#/components/schemas/AccountType'
+        organisationName:
+          type: string
+          nullable: true
+          maxLength: 200
+          description: Required if accountType is `business`
+          example: Acme Corp
 
     UserUpdateRequest:
       type: object
@@ -160,6 +168,12 @@ components:
           format: date-time
           nullable: true
           example: '2026-06-04T12:00:00Z'
+        accountType:
+          $ref: '#/components/schemas/AccountType'
+        organisationName:
+          type: string
+          nullable: true
+          example: Acme Corp
       required:
         - id
         - email
@@ -167,6 +181,7 @@ components:
         - username
         - status
         - isLocked
+        - accountType
         - createdAt
         - updatedAt
 
@@ -205,11 +220,18 @@ components:
           format: date-time
           nullable: true
           example: '2026-06-04T12:00:00Z'
+        accountType:
+          $ref: '#/components/schemas/AccountType'
+        organisationName:
+          type: string
+          nullable: true
+          example: Acme Corp
       required:
         - id
         - email
         - lastName
         - username
+        - accountType
         - createdAt
         - updatedAt
 
@@ -219,6 +241,13 @@ components:
         - active
         - inactive
       example: active
+
+    AccountType:
+      type: string
+      enum:
+        - personal
+        - business
+      example: personal
 
     # ──────────── Transaction ────────────
     TransactionCreateRequest:
