@@ -565,9 +565,14 @@ components:
         name:
           type: string
           example: EUR
+        exchangeRate:
+          type: number
+          format: decimal
+          example: 1.08
       required:
         - id
         - name
+        - exchangeRate
 
     # ──────────── Auth ────────────
     LoginRequest:
