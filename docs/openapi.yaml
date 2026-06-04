@@ -730,10 +730,6 @@ components:
         joinedAt:
           type: string
           format: date-time
-        removedAt:
-          type: string
-          format: date-time
-          nullable: true
 
     AddOrganizationMemberRequest:
       type: object
