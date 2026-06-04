@@ -170,6 +170,49 @@ components:
         - createdAt
         - updatedAt
 
+    UserProfile:
+      description: Public user profile without sensitive or admin fields
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        email:
+          type: string
+          format: email
+          example: john.doe@email.com
+        firstName:
+          type: string
+          nullable: true
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        username:
+          type: string
+          example: jdoe
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-06-04T10:30:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-06-04T10:30:00Z'
+        lastLoggedInAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-06-04T12:00:00Z'
+      required:
+        - id
+        - email
+        - lastName
+        - username
+        - createdAt
+        - updatedAt
+
     UserStatus:
       type: string
       enum:
@@ -708,7 +751,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                $ref: '#/components/schemas/UserProfile'
         '401':
           $ref: '#/components/responses/Unauthorized'
     patch:
