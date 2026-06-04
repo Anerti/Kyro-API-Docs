@@ -897,16 +897,14 @@ components:
       type: object
       required:
         - email
-        - recoveryCode
+        - recoveryData
       properties:
         email:
           type: string
           format: email
           example: john.doe@email.com
-        recoveryCode:
-          type: string
-          description: Backup recovery code (6 groups of 4 characters, dash-separated)
-          example: XK4J-MN92-PL7R-8FT3-BR27-LA1Q
+        recoveryData:
+          $ref: '#/components/schemas/RecoveryDataResponse'
 
     ForgotPasswordResponse:
       type: object
@@ -1145,10 +1143,10 @@ paths:
     post:
       tags:
         - Authentication
-      summary: Reset password using recovery code
+      summary: Reset password using recovery data
       description: >-
-        Validates a recovery code (backup code generated at account creation).
-        If the email and code are valid, returns a one-time reset token
+        Validates recovery data (backup codes generated at account creation).
+        If the email and codes are valid, returns a one-time reset token
         (valid 15 minutes) to be used with /auth/reset-password.
       operationId: forgotPassword
       requestBody:
