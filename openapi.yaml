@@ -171,6 +171,23 @@ components:
           format: date-time
           nullable: true
           example: '2026-06-04T12:00:00Z'
+        recoveryData:
+          type: object
+          nullable: true
+          description: Data used to recover or restore the account
+          properties:
+            backupEmail:
+              type: string
+              format: email
+              nullable: true
+              example: backup@email.com
+            backupPhone:
+              type: string
+              nullable: true
+              example: "+261XXXXXXXXX"
+          example:
+            backupEmail: backup@email.com
+            backupPhone: "+261XXXXXXXXX"
       required:
         - id
         - email
@@ -537,15 +554,10 @@ components:
         token:
           type: string
           example: eyJhbG...NiIs...
-        expiresAt:
-          type: string
-          format: date-time
-          example: '2026-07-04T10:30:00Z'
         user:
           $ref: '#/components/schemas/UserResponse'
       required:
         - token
-        - expiresAt
         - user
 
     RegisterRequest:
