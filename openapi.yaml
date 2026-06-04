@@ -103,7 +103,7 @@ components:
           type: string
           nullable: true
           maxLength: 200
-          description: Required if accountType is `business`
+          description: Required if accountType is `organisation`
           example: Acme Corp
 
     UserUpdateRequest:
@@ -150,8 +150,6 @@ components:
         username:
           type: string
           example: jdoe
-        status:
-          $ref: '#/components/schemas/UserStatus'
         isLocked:
           type: boolean
           example: false
@@ -179,7 +177,6 @@ components:
         - email
         - lastName
         - username
-        - status
         - isLocked
         - accountType
         - createdAt
@@ -245,9 +242,10 @@ components:
     AccountType:
       type: string
       enum:
-        - personal
-        - business
-      example: personal
+        - individual
+        - organisation
+        - other
+      example: individual
 
     # ──────────── Transaction ────────────
     TransactionCreateRequest:
