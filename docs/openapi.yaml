@@ -2310,6 +2310,21 @@ paths:
           schema:
             $ref: '#/components/schemas/MemberRole'
           description: Filter by role
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+          description: Search by first name or last name
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum:
+              - joinedAt_asc
+              - joinedAt_desc
+            default: joinedAt_asc
+          description: Sort by join date
       responses:
         '200':
           description: List of members
