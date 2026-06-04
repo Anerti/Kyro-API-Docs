@@ -1038,6 +1038,28 @@ components:
             error: Not Found
             message: The requested resource does not exist
 
+    BadRequest:
+      description: Malformed request body or validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 400
+            error: Bad Request
+            message: Invalid request body
+
+    Unprocessable:
+      description: Semantic validation failure
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 422
+            error: Unprocessable Entity
+            message: At least one required field is missing or invalid
+
 security:
   - BearerAuth: []
 
@@ -2123,6 +2145,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OrganizationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '409':
@@ -2135,6 +2159,8 @@ paths:
                 status: 409
                 error: Conflict
                 message: "Organization name or email already taken"
+        '422':
+          $ref: '#/components/responses/Unprocessable'
     get:
       tags:
         - Organizations
