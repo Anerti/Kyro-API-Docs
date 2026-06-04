@@ -758,8 +758,8 @@ components:
           example: john.doe@email.com
         recoveryCode:
           type: string
-          description: Backup recovery code generated at account creation
-          example: XK4J-MN92-PL7R
+          description: Backup recovery code (6 groups of 4 characters, dash-separated)
+          example: XK4J-MN92-PL7R-8FT3-BR27-LA1Q
 
     ForgotPasswordResponse:
       type: object
@@ -792,14 +792,14 @@ components:
             type: string
           description: Keep these in a safe place. They won't be shown again.
           example:
-            - XK4J-MN92-PL7R
-            - 8FT3-BR27-LA1Q
-            - QZ95-PD61-WC4X
-            - VN82-GT54-YS6M
-            - 3H71-JK48-BD9F
-            - WR65-AC73-FP2N
-            - 9E13-LM86-TZ5G
-            - PB45-RS90-VH4W
+            - XK4J-MN92-PL7R-8FT3-BR27-LA1Q
+            - QZ95-PD61-WC4X-VN82-GT54-YS6M
+            - 3H71-JK48-BD9F-WR65-AC73-FP2N
+            - 9E13-LM86-TZ5G-PB45-RS90-VH4W
+            - AB12-CD34-EF56-GH78-IJ90-KL12
+            - MN34-OP56-QR78-ST90-UV12-WX34
+            - YZ56-AB78-CD90-EF12-GH34-IJ56
+            - KL78-MN90-OP12-QR34-ST56-UV78
 
     ResetPasswordRequest:
       type: object
