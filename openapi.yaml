@@ -1321,27 +1321,6 @@ paths:
                 error: Unprocessable Entity
                 message: Invalid email format
 
-  /users/me/recovery-codes:
-    post:
-      tags:
-        - Users
-      summary: Generate new recovery codes
-      description: >-
-        Invalidates existing recovery codes and generates 8 new ones.
-        Codes are returned once and should be saved immediately.
-      operationId: generateRecoveryCodes
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: New recovery codes generated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RecoveryDataResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
   # ──────────── Transactions ────────────
   /transactions:
     get:
