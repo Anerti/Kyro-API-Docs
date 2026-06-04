@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-06-04T07:59:05.949Z",
+  "level": "ERROR",
+  "message": "Cannot read properties of undefined (reading 'x-resolved-from')",
+  "context": "Error\n    at EA.loadSpec (plugin:openapi-renderer:465:661887)\n    at async CA.renderSwaggerUI (plugin:openapi-renderer:465:664748)\n    at async CA.render (plugin:openapi-renderer:465:664405)\n    at async CA.rerender (plugin:openapi-renderer:465:664944)\n    at async eval (plugin:openapi-renderer:465:663126)",
+  "system": {
+    "platform": "linux",
+    "release": "7.0.10-2-cachyos",
+    "arch": "x64"
+  }
+}
+{
+  "timestamp": "2026-06-04T07:59:09.890Z",
+  "level": "ERROR",
+  "message": "Cannot read properties of undefined (reading 'x-resolved-from')",
+  "context": "Error\n    at EA.loadSpec (plugin:openapi-renderer:465:661887)\n    at async CA.renderSwaggerUI (plugin:openapi-renderer:465:664488)\n    at async CA.render (plugin:openapi-renderer:465:664405)\n    at async CA.rerender (plugin:openapi-renderer:465:664944)\n    at async eval (plugin:openapi-renderer:465:663126)",
+  "system": {
+    "platform": "linux",
+    "release": "7.0.10-2-cachyos",
+    "arch": "x64"
+  }
+}
+{
+  "timestamp": "2026-06-04T07:59:09.906Z",
+  "level": "ERROR",
+  "message": "Cannot read properties of undefined (reading 'x-resolved-from')",
+  "context": "Error\n    at EA.loadSpec (plugin:openapi-renderer:465:661887)\n    at async CA.renderSwaggerUI (plugin:openapi-renderer:465:664748)\n    at async CA.render (plugin:openapi-renderer:465:664405)\n    at async CA.rerender (plugin:openapi-renderer:465:664944)\n    at async eval (plugin:openapi-renderer:465:663126)",
+  "system": {
+    "platform": "linux",
+    "release": "7.0.10-2-cachyos",
+    "arch": "x64"
+  }
+}
+{
+  "timestamp": "2026-06-04T07:59:44.676Z",
+  "level": "ERROR",
+  "message": "Cannot read properties of undefined (reading 'x-resolved-from')",
+  "context": "Error\n    at EA.loadSpec (plugin:openapi-renderer:465:661887)\n    at async CA.renderSwaggerUI (plugin:openapi-renderer:465:664488)\n    at async CA.render (plugin:openapi-renderer:465:664405)\n    at async CA.rerender (plugin:openapi-renderer:465:664944)\n    at async eval (plugin:openapi-renderer:465:663126)",
+  "system": {
+    "platform": "linux",
+    "release": "7.0.10-2-cachyos",
+    "arch": "x64"
+  }
+}
+{
+  "timestamp": "2026-06-04T07:59:44.691Z",
+  "level": "ERROR",
+  "message": "Cannot read properties of undefined (reading 'x-resolved-from')",
+  "context": "Error\n    at EA.loadSpec (plugin:openapi-renderer:465:661887)\n    at async CA.renderSwaggerUI (plugin:openapi-renderer:465:664748)\n    at async CA.render (plugin:openapi-renderer:465:664405)\n    at async CA.rerender (plugin:openapi-renderer:465:664944)\n    at async eval (plugin:openapi-renderer:465:663126)",
+  "system": {
+    "platform": "linux",
+    "release": "7.0.10-2-cachyos",
+    "arch": "x64"
+  }
+}

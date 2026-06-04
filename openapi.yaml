@@ -1,0 +1,1244 @@
+openapi: 3.0.3
+info:
+  title: Tetibola API
+  description: >-
+    Personal finance management API — transactions, categories, currencies,
+    and user connection tracking.
+
+    Based on the validated MCD: one user owns N transactions,
+    each transaction is linked to one currency and N categories.
+  version: 1.0.0
+  contact:
+    name: Ervin ADRIANOMBANA
+    email: anerti@protonmail.com
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development
+  - url: https://api.tetibola.com/api/v1
+    description: Production
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained via `/auth/login`.
+
+  schemas:
+    # ──────────── Primitives ────────────
+    Error:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: Bad Request
+        message:
+          type: string
+          example: "Validation failed for field 'email'"
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: email
+              issue:
+                type: string
+                example: must be a valid email
+      required:
+        - status
+        - error
+        - message
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        per_page:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 142
+        total_pages:
+          type: integer
+          example: 8
+      required:
+        - page
+        - per_page
+        - total
+        - total_pages
+
+    # ──────────── User ────────────
+    UserCreateRequest:
+      type: object
+      required:
+        - email
+        - last_name
+        - username
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 100
+          example: john.doe@email.com
+        first_name:
+          type: string
+          maxLength: 100
+          nullable: true
+          example: John
+        last_name:
+          type: string
+          maxLength: 100
+          example: Doe
+        username:
+          type: string
+          maxLength: 100
+          example: jdoe
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 255
+          writeOnly: true
+          example: s3cur3P@ss
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 100
+          nullable: true
+          example: John
+        last_name:
+          type: string
+          maxLength: 100
+          example: Doe
+        email:
+          type: string
+          format: email
+          maxLength: 100
+          example: john.d@email.com
+        username:
+          type: string
+          maxLength: 100
+          example: jdoe
+      minProperties: 1
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        email:
+          type: string
+          format: email
+          example: john.doe@email.com
+        first_name:
+          type: string
+          nullable: true
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        username:
+          type: string
+          example: jdoe
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        is_locked:
+          type: boolean
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          example: '2026-06-04T10:30:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2026-06-04T10:30:00Z'
+        last_logged_in_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-06-04T12:00:00Z'
+      required:
+        - id
+        - email
+        - last_name
+        - username
+        - status
+        - is_locked
+        - created_at
+        - updated_at
+
+    UserStatus:
+      type: string
+      enum:
+        - active
+        - inactive
+      example: active
+
+    # ──────────── Transaction ────────────
+    TransactionCreateRequest:
+      type: object
+      required:
+        - amount
+        - method
+        - type
+        - currency_id
+        - unit
+      properties:
+        amount:
+          type: number
+          format: decimal
+          example: 150.00
+        title:
+          type: string
+          maxLength: 100
+          nullable: true
+          example: Groceries at Carrefour
+        description:
+          type: string
+          nullable: true
+          example: Weekly groceries — fruits, vegetables, milk
+        date:
+          type: string
+          format: date-time
+          nullable: true
+          description: Defaults to the current date
+        frequency:
+          $ref: '#/components/schemas/TransactionFrequency'
+        method:
+          $ref: '#/components/schemas/TransactionMethod'
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        expiration_date:
+          type: string
+          format: date-time
+          nullable: true
+          description: Only applicable to loans
+        currency_id:
+          type: string
+          format: uuid
+          example: b2c3d4e5-f6a7-8901-bcde-f12345678901
+        unit:
+          type: string
+          maxLength: 20
+          example: EUR
+        category_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          example:
+            - c3d4e5f6-a7b8-9012-cdef-123456789012
+          description: Category IDs to associate (optional)
+
+    TransactionUpdateRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: decimal
+          example: 200.00
+        title:
+          type: string
+          maxLength: 100
+          nullable: true
+          example: Groceries at Carrefour
+        description:
+          type: string
+          nullable: true
+        date:
+          type: string
+          format: date-time
+          nullable: true
+        frequency:
+          $ref: '#/components/schemas/TransactionFrequency'
+        method:
+          $ref: '#/components/schemas/TransactionMethod'
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        expiration_date:
+          type: string
+          format: date-time
+          nullable: true
+        currency_id:
+          type: string
+          format: uuid
+        unit:
+          type: string
+          maxLength: 20
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+        category_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+      minProperties: 1
+
+    TransactionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: decimal
+          example: 150.00
+        title:
+          type: string
+          nullable: true
+          example: Groceries at Carrefour
+        description:
+          type: string
+          nullable: true
+        date:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        frequency:
+          $ref: '#/components/schemas/TransactionFrequency'
+        method:
+          $ref: '#/components/schemas/TransactionMethod'
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+        expiration_date:
+          type: string
+          format: date-time
+          nullable: true
+        unit:
+          type: string
+          example: EUR
+        currency:
+          $ref: '#/components/schemas/CurrencySummary'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategorySummary'
+        user_id:
+          type: string
+          format: uuid
+      required:
+        - id
+        - amount
+        - date
+        - created_at
+        - updated_at
+        - method
+        - type
+        - status
+        - unit
+        - currency
+        - categories
+        - user_id
+
+    TransactionStatus:
+      type: string
+      enum:
+        - active
+        - inactive
+      example: active
+
+    TransactionFrequency:
+      type: string
+      enum:
+        - daily
+        - weekly
+        - monthly
+        - yearly
+        - one-time
+        - other
+      example: one-time
+
+    TransactionMethod:
+      type: string
+      enum:
+        - bank_transfer
+        - mobile_money
+        - cash
+        - card
+        - other
+      example: card
+
+    TransactionType:
+      type: string
+      enum:
+        - income
+        - expense
+        - loan
+        - other
+      example: expense
+
+    # ──────────── Category ────────────
+    CategoryCreateRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          example: Food & Groceries
+
+    CategoryUpdateRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          example: Food & Dining
+
+    CategoryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Food & Groceries
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - created_at
+        - updated_at
+
+    CategorySummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+        - id
+        - name
+
+    # ──────────── Currency ────────────
+    CurrencyCreateRequest:
+      type: object
+      required:
+        - name
+        - exchange_rate
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          example: EUR
+        exchange_rate:
+          type: number
+          format: decimal
+          example: 1.0
+          description: Exchange rate against the reference currency
+
+    CurrencyUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          example: USD
+        exchange_rate:
+          type: number
+          format: decimal
+          example: 1.08
+      minProperties: 1
+
+    CurrencyResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: EUR
+        exchange_rate:
+          type: number
+          format: decimal
+          example: 1.0
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - exchange_rate
+        - created_at
+        - updated_at
+
+    CurrencySummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: EUR
+      required:
+        - id
+        - name
+
+    # ──────────── Auth ────────────
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: jdoe
+        password:
+          type: string
+          format: password
+          example: s3cur3P@ss
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbG...NiIs...
+        expires_at:
+          type: string
+          format: date-time
+          example: '2026-07-04T10:30:00Z'
+        user:
+          $ref: '#/components/schemas/UserResponse'
+      required:
+        - token
+        - expires_at
+        - user
+
+    RegisterRequest:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/UserCreateRequest'
+        - type: object
+          properties:
+            confirm_password:
+              type: string
+              format: password
+              description: Must match `password`
+          required:
+            - confirm_password
+
+  responses:
+    Unauthorized:
+      description: Missing, invalid or expired token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 401
+            error: Unauthorized
+            message: Authentication token is missing or invalid
+
+    Forbidden:
+      description: User does not have permission for this resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 403
+            error: Forbidden
+            message: You are not allowed to access this resource
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 404
+            error: Not Found
+            message: The requested resource does not exist
+
+security:
+  - BearerAuth: []
+
+paths:
+  # ──────────── Auth ────────────
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Create a new account
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '409':
+          description: Email or username already taken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Log in
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials or locked account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ──────────── Users ────────────
+  /users/me:
+    get:
+      tags:
+        - Users
+      summary: Get my profile
+      operationId: getCurrentUser
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user's profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+        - Users
+      summary: Update my profile
+      operationId: updateCurrentUser
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Email or username already taken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ──────────── Transactions ────────────
+  /transactions:
+    get:
+      tags:
+        - Transactions
+      summary: List transactions
+      description: >-
+        Returns the authenticated user's transactions.
+        Soft-deleted transactions are excluded by default.
+      operationId: listTransactions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Items per page
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/TransactionType'
+          description: Filter by type
+        - name: method
+          in: query
+          schema:
+            $ref: '#/components/schemas/TransactionMethod'
+          description: Filter by payment method
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/TransactionStatus'
+          description: Filter by status
+        - name: category_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by category
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Start date (YYYY-MM-DD)
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+          description: End date (YYYY-MM-DD)
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+          description: Search in title and description
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum:
+              - date
+              - -date
+              - amount
+              - -amount
+              - created_at
+              - -created_at
+            default: -date
+          description: >-
+            Sort field. Prefix with `-` for descending.
+            Example: `-date` = most recent first.
+        - name: include_deleted
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Include soft-deleted transactions
+      responses:
+        '200':
+          description: Paginated list of transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TransactionResponse'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                required:
+                  - data
+                  - pagination
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Transactions
+      summary: Create a transaction
+      operationId: createTransaction
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionCreateRequest'
+      responses:
+        '201':
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Currency or category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /transactions/{transactionId}:
+    get:
+      tags:
+        - Transactions
+      summary: Get transaction details
+      operationId: getTransaction
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Transactions
+      summary: Update a transaction
+      operationId: updateTransaction
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionUpdateRequest'
+      responses:
+        '200':
+          description: Transaction updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Transactions
+      summary: Delete a transaction (soft delete)
+      operationId: deleteTransaction
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Transaction deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ──────────── Categories ────────────
+  /categories:
+    get:
+      tags:
+        - Categories
+      summary: List categories
+      operationId: listCategories
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 200
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+          description: Search by name
+      responses:
+        '200':
+          description: Paginated list of categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CategoryResponse'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                required:
+                  - data
+                  - pagination
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Categories
+      summary: Create a category
+      operationId: createCategory
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryCreateRequest'
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /categories/{categoryId}:
+    get:
+      tags:
+        - Categories
+      summary: Get category details
+      operationId: getCategory
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Category details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Categories
+      summary: Update a category
+      operationId: updateCategory
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryUpdateRequest'
+      responses:
+        '200':
+          description: Category updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Categories
+      summary: Delete a category
+      operationId: deleteCategory
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Category deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ──────────── Currencies ────────────
+  /currencies:
+    get:
+      tags:
+        - Currencies
+      summary: List currencies
+      operationId: listCurrencies
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of currencies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CurrencyResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Currencies
+      summary: Create a currency
+      operationId: createCurrency
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CurrencyCreateRequest'
+      responses:
+        '201':
+          description: Currency created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrencyResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /currencies/{currencyId}:
+    get:
+      tags:
+        - Currencies
+      summary: Get currency details
+      operationId: getCurrency
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: currencyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Currency details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrencyResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Currencies
+      summary: Update a currency
+      operationId: updateCurrency
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: currencyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CurrencyUpdateRequest'
+      responses:
+        '200':
+          description: Currency updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrencyResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Currencies
+      summary: Delete a currency
+      operationId: deleteCurrency
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: currencyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Currency deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
