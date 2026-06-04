@@ -2270,6 +2270,8 @@ paths:
                 status: 409
                 error: Conflict
                 message: "Organization name or email already taken"
+        '422':
+          $ref: '#/components/responses/Unprocessable'
     delete:
       tags:
         - Organizations
