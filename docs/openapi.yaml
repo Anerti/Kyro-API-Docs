@@ -399,9 +399,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CategorySummary'
-        organizationId:
-          type: string
-          format: uuid
+        organization:
+          allOf:
+            - $ref: '#/components/schemas/OrganizationSummary'
           nullable: true
           description: Organization this transaction belongs to
       required:
@@ -714,6 +714,20 @@ components:
         - inactive
         - locked
       example: active
+
+    OrganizationSummary:
+      type: object
+      description: Lightweight organization reference for nested usage
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 100
+      required:
+        - id
+        - name
 
     OrganizationMemberResponse:
       type: object
