@@ -263,7 +263,6 @@ components:
         - amount
         - method
         - type
-        - currencyUnit
       properties:
         amount:
           type: number
@@ -296,14 +295,14 @@ components:
           description: Only applicable to loans
         currencyUnit:
           $ref: '#/components/schemas/CurrencyUnit'
-        categoryIds:
+        categoryNames:
           type: array
           items:
             type: string
-            format: uuid
+            maxLength: 100
           example:
-            - c3d4e5f6-a7b8-9012-cdef-123456789012
-          description: Category IDs to associate (optional)
+            - Food & Groceries
+          description: Category names to associate (optional)
 
     TransactionUpdateRequest:
       type: object
@@ -338,11 +337,11 @@ components:
           $ref: '#/components/schemas/CurrencyUnit'
         status:
           $ref: '#/components/schemas/TransactionStatus'
-        categoryIds:
+        categoryNames:
           type: array
           items:
             type: string
-            format: uuid
+            maxLength: 100
       minProperties: 1
 
     TransactionResponse:
@@ -397,6 +396,7 @@ components:
         - date
         - createdAt
         - updatedAt
+        - frequency
         - method
         - type
         - status
@@ -494,62 +494,6 @@ components:
         - id
         - name
 
-    # ──────────── Currency ────────────
-    CurrencyCreateRequest:
-      type: object
-      required:
-        - name
-        - exchangeRate
-      properties:
-        name:
-          type: string
-          maxLength: 100
-          example: EUR
-        exchangeRate:
-          type: number
-          format: decimal
-          example: 1.0
-          description: Exchange rate against the reference currency
-
-    CurrencyUpdateRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          maxLength: 100
-          example: USD
-        exchangeRate:
-          type: number
-          format: decimal
-          example: 1.08
-      minProperties: 1
-
-    CurrencyResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-          example: EUR
-        exchangeRate:
-          type: number
-          format: decimal
-          example: 1.0
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-      required:
-        - id
-        - name
-        - exchangeRate
-        - createdAt
-        - updatedAt
-
     CurrencyUnit:
       type: string
       enum:
@@ -564,6 +508,54 @@ components:
         - AUD
         - ZAR
       example: MGA
+
+    # ──────────── IP Address ────────────
+    IpAddressStatus:
+      type: string
+      enum:
+        - active
+        - inactive
+        - banned
+      example: active
+
+    IpAddressResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        ipAddress:
+          type: string
+          example: 192.168.1.1
+        status:
+          $ref: '#/components/schemas/IpAddressStatus'
+        loginAttempt:
+          type: integer
+          example: 0
+        lastSeenAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-06-04T12:00:00Z'
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - ipAddress
+        - status
+        - loginAttempt
+        - createdAt
+
+    AddIpAddressRequest:
+      type: object
+      required:
+        - ipAddress
+      properties:
+        ipAddress:
+          type: string
+          maxLength: 255
+          example: 192.168.1.1
 
     # ──────────── Auth ────────────
     LoginRequest:
@@ -813,6 +805,20 @@ paths:
                 status: 422
                 error: Unprocessable Entity
                 message: "Invalid input data"
+    delete:
+      tags:
+        - Users
+      summary: Delete my account
+      operationId: deleteCurrentUser
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Account deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   # ──────────── Transactions ────────────
   /transactions:
@@ -1243,31 +1249,43 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  # ──────────── Currencies ────────────
-  /currencies:
+  # ──────────── IP Addresses ────────────
+  /users/me/ip-addresses:
     get:
       tags:
-        - Currencies
-      summary: List currencies
-      operationId: listCurrencies
+        - IP Addresses
+      summary: List my IP addresses
+      description: >-
+        Returns all IP addresses associated with the authenticated user,
+        including the last-seen timestamp from the junction table.
+      operationId: listMyIpAddresses
       security:
         - BearerAuth: []
       responses:
         '200':
-          description: List of currencies
+          description: List of IP addresses
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CurrencyResponse'
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/IpAddressResponse'
+                required:
+                  - data
         '401':
           $ref: '#/components/responses/Unauthorized'
     post:
       tags:
-        - Currencies
-      summary: Create a currency
-      operationId: createCurrency
+        - IP Addresses
+      summary: Add an IP address
+      description: >-
+        Registers an IP address and links it to the authenticated user.
+        If the IP already exists in the IP_address table, the existing
+        record is reused.
+      operationId: addMyIpAddress
       security:
         - BearerAuth: []
       requestBody:
@@ -1275,18 +1293,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CurrencyCreateRequest'
+              $ref: '#/components/schemas/AddIpAddressRequest'
       responses:
         '201':
-          description: Currency created
+          description: IP address added
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CurrencyResponse'
+                $ref: '#/components/schemas/IpAddressResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '409':
-          description: Name already exists
+          description: IP address already linked to this user
           content:
             application/json:
               schema:
@@ -1294,84 +1312,31 @@ paths:
               example:
                 status: 409
                 error: Conflict
-                message: "Name already exists"
+                message: "This IP address is already associated with your account"
+        '422':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 422
+                error: Unprocessable Entity
+                message: "Invalid IP address format"
 
-  /currencies/{currencyId}:
-    get:
-      tags:
-        - Currencies
-      summary: Get currency details
-      operationId: getCurrency
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: currencyId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Currency details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CurrencyResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    patch:
-      tags:
-        - Currencies
-      summary: Update a currency
-      operationId: updateCurrency
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: currencyId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CurrencyUpdateRequest'
-      responses:
-        '200':
-          description: Currency updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CurrencyResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          description: Name already exists
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                status: 409
-                error: Conflict
-                message: "Name already exists"
+  /users/me/ip-addresses/{ipAddressId}:
     delete:
       tags:
-        - Currencies
-      summary: Delete a currency
-      operationId: deleteCurrency
+        - IP Addresses
+      summary: Remove an IP address
+      description: >-
+        Removes the link between the authenticated user and the IP address.
+        The IP address record itself is preserved in the database.
+      operationId: removeMyIpAddress
       security:
         - BearerAuth: []
       parameters:
-        - name: currencyId
+        - name: ipAddressId
           in: path
           required: true
           schema:
@@ -1379,8 +1344,10 @@ paths:
             format: uuid
       responses:
         '204':
-          description: Currency deleted
+          description: IP address link removed
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
