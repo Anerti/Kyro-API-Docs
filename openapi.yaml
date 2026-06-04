@@ -625,12 +625,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                status: 409
+                error: Conflict
+                message: "Email or username already taken"
         '422':
           description: Invalid input data
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                status: 422
+                error: Unprocessable Entity
+                message: "Invalid input data"
 
   /auth/login:
     post:
@@ -657,6 +665,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                status: 401
+                error: Unauthorized
+                message: "Invalid credentials or locked account"
 
   # ──────────── Users ────────────
   /users/me:
@@ -704,12 +716,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                status: 409
+                error: Conflict
+                message: "Email or username already taken"
         '422':
           description: Invalid input data
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                status: 422
+                error: Unprocessable Entity
+                message: "Invalid input data"
 
   # ──────────── Transactions ────────────
   /transactions:
@@ -846,12 +866,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                status: 404
+                error: Not Found
+                message: "Currency or category not found"
         '422':
           description: Invalid input data
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                status: 422
+                error: Unprocessable Entity
+                message: "Invalid input data"
 
   /transactions/{transactionId}:
     get:
@@ -920,6 +948,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                status: 422
+                error: Unprocessable Entity
+                message: "Invalid input data"
     delete:
       tags:
         - Transactions
@@ -1020,6 +1052,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                status: 409
+                error: Conflict
+                message: "Name already exists"
 
   /categories/{categoryId}:
     get:
@@ -1084,6 +1120,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                status: 409
+                error: Conflict
+                message: "Name already exists"
     delete:
       tags:
         - Categories
@@ -1154,6 +1194,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                status: 409
+                error: Conflict
+                message: "Name already exists"
 
   /currencies/{currencyId}:
     get:
@@ -1218,6 +1262,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                status: 409
+                error: Conflict
+                message: "Name already exists"
     delete:
       tags:
         - Currencies
