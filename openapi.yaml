@@ -1261,6 +1261,33 @@ paths:
       operationId: listMyIpAddresses
       security:
         - BearerAuth: []
+      parameters:
+        - name: ipAddress
+          in: query
+          schema:
+            type: string
+            maxLength: 255
+          description: Filter by IP address (partial or full match)
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/IpAddressStatus'
+          description: Filter by status
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum:
+              - loginAttempt
+              - -loginAttempt
+              - lastSeenAt
+              - -lastSeenAt
+              - createdAt
+              - -createdAt
+            default: -lastSeenAt
+          description: >-
+            Sort field. Prefix with `-` for descending.
+            Example: `-lastSeenAt` = most recent first.
       responses:
         '200':
           description: List of IP addresses
