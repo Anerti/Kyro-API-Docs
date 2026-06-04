@@ -33,13 +33,10 @@ components:
       properties:
         status:
           type: integer
-          example: 400
         error:
           type: string
-          example: Bad Request
         message:
           type: string
-          example: "Validation failed for field 'email'"
         details:
           type: array
           items:
