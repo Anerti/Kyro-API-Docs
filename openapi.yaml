@@ -547,13 +547,20 @@ components:
         - loginAttempt
         - createdAt
 
+    IpAddressStatusUpdate:
+      type: string
+      enum:
+        - inactive
+        - banned
+      example: inactive
+
     UpdateIpAddressStatusRequest:
       type: object
       required:
         - status
       properties:
         status:
-          $ref: '#/components/schemas/IpAddressStatus'
+          $ref: '#/components/schemas/IpAddressStatusUpdate'
 
     # ──────────── Auth ────────────
     LoginRequest:
@@ -1347,7 +1354,7 @@ paths:
               example:
                 status: 422
                 error: Unprocessable Entity
-                message: "Invalid status. Allowed: active, inactive, banned"
+                message: "Invalid status. Allowed: inactive, banned"
     delete:
       tags:
         - IP Addresses
