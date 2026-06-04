@@ -750,20 +750,56 @@ components:
       type: object
       required:
         - email
+        - recoveryCode
       properties:
         email:
           type: string
           format: email
           example: john.doe@email.com
+        recoveryCode:
+          type: string
+          description: Backup recovery code generated at account creation
+          example: XK4J-MN92-PL7R
 
     ForgotPasswordResponse:
       type: object
       required:
         - message
+        - resetToken
+        - expiresAt
       properties:
         message:
           type: string
-          example: If the email exists, a reset link has been sent
+          example: Recovery code accepted. Use the reset token to set a new password.
+        resetToken:
+          type: string
+          description: One-time token valid for 15 minutes
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        expiresAt:
+          type: string
+          format: date-time
+          description: Token expiration timestamp
+          example: "2026-06-04T18:30:00Z"
+
+    RecoveryCodesResponse:
+      type: object
+      required:
+        - codes
+      properties:
+        codes:
+          type: array
+          items:
+            type: string
+          description: Keep these in a safe place. They won't be shown again.
+          example:
+            - XK4J-MN92-PL7R
+            - 8FT3-BR27-LA1Q
+            - QZ95-PD61-WC4X
+            - VN82-GT54-YS6M
+            - 3H71-JK48-BD9F
+            - WR65-AC73-FP2N
+            - 9E13-LM86-TZ5G
+            - PB45-RS90-VH4W
 
     ResetPasswordRequest:
       type: object
@@ -940,8 +976,11 @@ paths:
     post:
       tags:
         - Authentication
-      summary: Request password reset
-      description: Sends a reset token to the user's email if the account exists.
+      summary: Reset password using recovery code
+      description: >-
+        Validates a recovery code (backup code generated at account creation).
+        If the email and code are valid, returns a one-time reset token
+        (valid 15 minutes) to be used with /auth/reset-password.
       operationId: forgotPassword
       requestBody:
         required: true
@@ -951,13 +990,15 @@ paths:
               $ref: '#/components/schemas/ForgotPasswordRequest'
       responses:
         '200':
-          description: Reset email sent (always returns 200 to prevent email enumeration)
+          description: Recovery code accepted
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForgotPasswordResponse'
               example:
-                message: If the email exists, a reset link has been sent
+                message: Recovery code accepted. Use the reset token to set a new password.
+                resetToken: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                expiresAt: "2026-06-04T18:30:00Z"
         '400':
           description: Malformed request body
           content:
@@ -968,8 +1009,18 @@ paths:
                 status: 400
                 error: Bad Request
                 message: "Malformed request body"
+        '401':
+          description: Invalid recovery code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 401
+                error: Unauthorized
+                message: "Invalid recovery code"
         '422':
-          description: Invalid email format
+          description: Invalid input data
           content:
             application/json:
               schema:
@@ -977,7 +1028,7 @@ paths:
               example:
                 status: 422
                 error: Unprocessable Entity
-                message: "Invalid email format"
+                message: "Invalid email format or missing recovery code"
 
   /auth/reset-password:
     post:
@@ -1237,6 +1288,27 @@ paths:
                 status: 422
                 error: Unprocessable Entity
                 message: Invalid email format
+
+  /users/me/recovery-codes:
+    post:
+      tags:
+        - Users
+      summary: Generate new recovery codes
+      description: >-
+        Invalidates existing recovery codes and generates 8 new ones.
+        Codes are returned once and should be saved immediately.
+      operationId: generateRecoveryCodes
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: New recovery codes generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecoveryCodesResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
   # ──────────── Transactions ────────────
   /transactions:
