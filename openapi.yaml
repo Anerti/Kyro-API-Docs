@@ -160,33 +160,6 @@ components:
           format: date-time
           nullable: true
           example: '2026-06-04T12:00:00Z'
-        recoveryData:
-          type: object
-          nullable: true
-          description: >
-            One-time recovery codes generated server-side.
-            Only the hash is stored; plaintext shown once at account creation.
-          properties:
-            codes:
-              type: array
-              items:
-                type: string
-                example: A3F8-K2D1-9B7C
-              minItems: 8
-              maxItems: 10
-              description: 8–10 recovery codes, each 12 alphanumeric chars
-          required:
-            - codes
-          example:
-            codes:
-              - A3F8-K2D1-9B7C
-              - X5P2-M8J3-4Q6W
-              - R7L9-K2B5-1N3D
-              - W8C4-V6M2-P9X1
-              - J4H7-G3N8-K2B6
-              - T5Y9-R1L4-M7C3
-              - N2Q8-W6P3-D5X7
-              - F1V4-B0K9-M3R6
       required:
         - id
         - email
@@ -689,6 +662,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Malformed request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 400
+                error: Bad Request
+                message: "Malformed request body"
         '401':
           description: Invalid credentials or locked account
           content:
@@ -699,6 +682,16 @@ paths:
                 status: 401
                 error: Unauthorized
                 message: "Invalid credentials or locked account"
+        '422':
+          description: Neither email nor username provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 422
+                error: Unprocessable Entity
+                message: "At least one of email or username is required"
 
   # ──────────── Users ────────────
   /users/me:
