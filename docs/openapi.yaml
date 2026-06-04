@@ -733,15 +733,24 @@ components:
 
     AddOrganizationMemberRequest:
       type: object
-      required:
-        - email
+      description: Add a member by email OR username (mutually exclusive, exactly one required)
       properties:
         email:
           type: string
           format: email
+          maxLength: 100
           description: Email of the user to add as member
+        username:
+          type: string
+          maxLength: 100
+          description: Username of the user to add as member
         role:
           $ref: '#/components/schemas/MemberRole'
+      oneOf:
+        - required:
+            - email
+        - required:
+            - username
 
     UpdateMemberRoleRequest:
       type: object
