@@ -42,6 +42,14 @@ components:
         - error
         - message
 
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
     Pagination:
       type: object
       properties:
@@ -899,10 +907,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/MessageResponse'
               example:
-                status: 200
-                error: OK
                 message: Password changed successfully
         '400':
           description: Malformed request body
