@@ -800,76 +800,6 @@ paths:
                 error: Unprocessable Entity
                 message: "At least one of email or username is required"
 
-  /auth/change-password:
-    post:
-      tags:
-        - Authentication
-      summary: Change my password
-      description: >-
-        Change the authenticated user's password.
-        Requires the current password for verification.
-        Passwords that have been used before are rejected.
-      operationId: changePassword
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ChangePasswordRequest'
-      responses:
-        '200':
-          description: Password changed successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                status: 200
-                error: OK
-                message: Password changed successfully
-        '400':
-          description: Malformed request body
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                status: 400
-                error: Bad Request
-                message: Malformed request body
-        '401':
-          description: Current password is incorrect
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                status: 401
-                error: Unauthorized
-                message: Current password is incorrect
-        '409':
-          description: Password has been used before
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                status: 409
-                error: Conflict
-                message: You have used this password before. Please choose a different one.
-        '422':
-          description: Invalid input data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                status: 422
-                error: Unprocessable Entity
-                message: Passwords do not match or do not meet security requirements
-
   # ──────────── Users ────────────
   /users/me:
     get:
@@ -944,6 +874,76 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+
+  /users/me/change-password:
+    post:
+      tags:
+        - Users
+      summary: Change my password
+      description: >-
+        Change the authenticated user's password.
+        Requires the current password for verification.
+        Passwords that have been used before are rejected.
+      operationId: changePassword
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 200
+                error: OK
+                message: Password changed successfully
+        '400':
+          description: Malformed request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 400
+                error: Bad Request
+                message: Malformed request body
+        '401':
+          description: Current password is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 401
+                error: Unauthorized
+                message: Current password is incorrect
+        '409':
+          description: Password has been used before
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 409
+                error: Conflict
+                message: You have used this password before. Please choose a different one.
+        '422':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 422
+                error: Unprocessable Entity
+                message: Passwords do not match or do not meet security requirements
 
   /users/me/email:
     patch:
