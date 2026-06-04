@@ -1045,6 +1045,7 @@ paths:
         - Authentication
       summary: Create a new account
       operationId: register
+      security: []
       requestBody:
         required: true
         content:
@@ -1095,6 +1096,7 @@ paths:
         - Authentication
       summary: Log in
       operationId: login
+      security: []
       requestBody:
         required: true
         content:
@@ -1139,7 +1141,7 @@ paths:
                 error: Unprocessable Entity
                 message: "At least one of email or username is required"
 
-  /auth/forgot-password:
+  /auth/password-recovery:
     post:
       tags:
         - Authentication
@@ -1148,7 +1150,8 @@ paths:
         Validates recovery data (backup codes generated at account creation).
         If the email and codes are valid, returns a one-time reset token
         (valid 15 minutes) to be used with /auth/reset-password.
-      operationId: forgotPassword
+      operationId: passwordRecovery
+      security: []
       requestBody:
         required: true
         content:
@@ -1204,6 +1207,7 @@ paths:
       summary: Reset password with token
       description: Resets the user's password using a valid reset token.
       operationId: resetPassword
+      security: []
       requestBody:
         required: true
         content:
