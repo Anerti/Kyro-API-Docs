@@ -474,6 +474,73 @@ components:
         - other
       example: expense
 
+    SummaryGroupBy:
+      type: string
+      enum:
+        - day
+        - week
+        - month
+        - category
+      example: month
+
+    SummaryGroup:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Group key (date YYYY-MM-DD, ISO week, YYYY-MM, or category name)
+          example: "2026-06"
+        income:
+          type: number
+          format: double
+          example: 1500.00
+        expense:
+          type: number
+          format: double
+          example: 850.50
+        balance:
+          type: number
+          format: double
+          example: 649.50
+        count:
+          type: integer
+          example: 12
+      required:
+        - key
+        - income
+        - expense
+        - balance
+        - count
+
+    TransactionSummaryResponse:
+      type: object
+      properties:
+        totalIncome:
+          type: number
+          format: double
+          example: 5000.00
+        totalExpense:
+          type: number
+          format: double
+          example: 3200.00
+        balance:
+          type: number
+          format: double
+          example: 1800.00
+        count:
+          type: integer
+          example: 42
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/SummaryGroup'
+      required:
+        - totalIncome
+        - totalExpense
+        - balance
+        - count
+        - groups
+
     # ──────────── Category ────────────
     CategoryCreateRequest:
       type: object
@@ -1177,6 +1244,55 @@ paths:
                 status: 422
                 error: Unprocessable Entity
                 message: "Invalid input data"
+
+  /transactions/summary:
+    get:
+      tags:
+        - Transactions
+      summary: Get transaction summary
+      description: >-
+        Aggregated income, expense, and balance for the authenticated user.
+        Optionally grouped by day, week, month, or category.
+      operationId: getTransactionSummary
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Start date (YYYY-MM-DD)
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: End date (YYYY-MM-DD)
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/TransactionType'
+          description: Filter by transaction type
+        - name: currencyUnit
+          in: query
+          schema:
+            $ref: '#/components/schemas/CurrencyUnit'
+          description: Filter by currency
+        - name: groupBy
+          in: query
+          schema:
+            $ref: '#/components/schemas/SummaryGroupBy'
+          description: Group results by day, week, month, or category
+      responses:
+        '200':
+          description: Transaction summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionSummaryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
   /transactions/{transactionId}:
     get:
