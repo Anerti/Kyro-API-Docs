@@ -782,6 +782,7 @@ paths:
       description: >-
         Change the authenticated user's password.
         Requires the current password for verification.
+        Passwords that have been used before are rejected.
       operationId: changePassword
       security:
         - BearerAuth: []
@@ -822,6 +823,16 @@ paths:
                 status: 401
                 error: Unauthorized
                 message: Current password is incorrect
+        '409':
+          description: Password has been used before
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 409
+                error: Conflict
+                message: You have used this password before. Please choose a different one.
         '422':
           description: Invalid input data
           content:

@@ -1,19 +1,156 @@
 {
-	"nodes":[
-		{"id":"972b536bfff8b94a","type":"text","text":"# transaction_category\n\n- `(transaction_id, category_id) pk`\n- `transaction_id uuid fk references transaction(id) not null`\n- `category_id uuid fk references category(id) not null`\n- `created_at timestamp now()`\n- `updated_at timestamp now()`","x":-330,"y":1000,"width":766,"height":240,"color":"6"},
-		{"id":"ebe3dcf6cb767eb4","type":"text","text":"# IP_address\n\n- `id uuid pk`\n- `ip_address varchar(255) not null`\n- `created_at timestamp now()`\n- `status enum(active, inactive, banned) default active not null`\n- `login_attempt int default 0`","x":-330,"y":-1720,"width":766,"height":353,"color":"#ffffff"},
-		{"id":"edd7c4d0892f8f3e","type":"text","text":"# category\n\n- `id uuid pk`\n- `name varchar(100) unique not null`\n- `created_at timestamp now()`\n- `updated_at timestamp now()`","x":-330,"y":1480,"width":766,"height":200,"color":"#f7f7f7"},
-		{"id":"b385ea7ca3062ed3","type":"text","text":"# user_ip_address\n\n- `(user_id, ip_address_id) pk`\n- `user_id uuid fk references user(id) not null`\n- `ip_address_id uuid fk references ip_address(id) not null`\n- `last_seen_at timestamp now()`","x":-330,"y":-1140,"width":766,"height":220,"color":"6"},
-		{"id":"99c7381465ec43ac","type":"text","text":"# user_transaction","x":-76,"y":0,"width":258,"height":60,"color":"6"},
-		{"id":"e81a3b80207dd886","type":"text","text":"# transaction\n\n- `id uuid pk`\n- `amount numeric not null`\n- `title varchar(100)`\n- `description text`\n- `date timestamp default now() not null`\n- `created_at timestamp now()`\n- `frequency enum(daily, weekly, monthly, yearly, one-time, other) default one-time`\n- `updated_at timestamp now()`\n- `method enum(bank_transfer, mobile_money, cash, card, other) not null`\n- `status enum(active, inactive) default active`\n- `type enum(income, expense, loan, other) not null`\n- `expiration_date timestamp`\n- `user_id uuid fk references user(id) not null`\n- `currency_unit enum(EUR, MGA, USD, GBP, CHF, CAD, JPY, CNY, AUD, ZAR) default MGA`","x":-330,"y":315,"width":766,"height":510,"color":"#ffffff"},
-		{"id":"57f3d8f7289214dc","type":"text","text":"# user\n\n- `id uuid pk`\n- `email varchar(100) unique not null`\n- `first_name varchar(100)`\n- `last_name varchar(100) not null`\n- `username varchar(100) unique not null`\n- `password varchar(255) not null`\n- `created_at timestamp now()`\n- `last_logged_in_at timestamp now()`\n- `status enum(active, inactive, locked) default active`\n- `updated_at timestamp now()`\n- `recovery_data text not null`\n- `organization_name varchar(100)`\n- `account_type enum(individual, organization, other) default individual`","x":-330,"y":-730,"width":766,"height":480,"color":"#ffffff"}
-	],
-	"edges":[
-		{"id":"946fe02812c19490","fromNode":"e81a3b80207dd886","fromSide":"bottom","toNode":"972b536bfff8b94a","toSide":"top","toEnd":"none","color":"6","label":"1,N"},
-		{"id":"659079cf0454a6bc","fromNode":"972b536bfff8b94a","fromSide":"bottom","toNode":"edd7c4d0892f8f3e","toSide":"top","toEnd":"none","color":"6","label":"1,N"},
-		{"id":"8455ea19e76bdb15","fromNode":"57f3d8f7289214dc","fromSide":"bottom","toNode":"99c7381465ec43ac","toSide":"top","toEnd":"none","color":"6","label":"1,N"},
-		{"id":"5dd9e3016c182f41","fromNode":"99c7381465ec43ac","fromSide":"bottom","toNode":"e81a3b80207dd886","toSide":"top","toEnd":"none","color":"6","label":"1,1"},
-		{"id":"6826e45585d9dc81","fromNode":"ebe3dcf6cb767eb4","fromSide":"bottom","toNode":"b385ea7ca3062ed3","toSide":"top","toEnd":"none","color":"6","label":"1,N"},
-		{"id":"a1373e40e59ca01f","fromNode":"b385ea7ca3062ed3","fromSide":"bottom","toNode":"57f3d8f7289214dc","toSide":"top","toEnd":"none","color":"6","label":"1,N"}
-	]
+  "nodes": [
+    {
+      "id": "972b536bfff8b94a",
+      "type": "text",
+      "text": "# transaction_category\n\n- `(transaction_id, category_id) pk`\n- `transaction_id uuid fk references transaction(id) not null`\n- `category_id uuid fk references category(id) not null`\n- `created_at timestamp now()`\n- `updated_at timestamp now()`",
+      "x": -330,
+      "y": 1000,
+      "width": 766,
+      "height": 240,
+      "color": "6"
+    },
+    {
+      "id": "ebe3dcf6cb767eb4",
+      "type": "text",
+      "text": "# IP_address\n\n- `id uuid pk`\n- `ip_address varchar(255) not null`\n- `created_at timestamp now()`\n- `status enum(active, inactive, banned) default active not null`\n- `login_attempt int default 0`",
+      "x": -330,
+      "y": -1720,
+      "width": 766,
+      "height": 353,
+      "color": "#ffffff"
+    },
+    {
+      "id": "edd7c4d0892f8f3e",
+      "type": "text",
+      "text": "# category\n\n- `id uuid pk`\n- `name varchar(100) unique not null`\n- `created_at timestamp now()`\n- `updated_at timestamp now()`",
+      "x": -330,
+      "y": 1480,
+      "width": 766,
+      "height": 200,
+      "color": "#f7f7f7"
+    },
+    {
+      "id": "b385ea7ca3062ed3",
+      "type": "text",
+      "text": "# user_ip_address\n\n- `(user_id, ip_address_id) pk`\n- `user_id uuid fk references user(id) not null`\n- `ip_address_id uuid fk references ip_address(id) not null`\n- `last_seen_at timestamp now()`",
+      "x": -330,
+      "y": -1140,
+      "width": 766,
+      "height": 220,
+      "color": "6"
+    },
+    {
+      "id": "99c7381465ec43ac",
+      "type": "text",
+      "text": "# user_transaction",
+      "x": -76,
+      "y": 0,
+      "width": 258,
+      "height": 60,
+      "color": "6"
+    },
+    {
+      "id": "e81a3b80207dd886",
+      "type": "text",
+      "text": "# transaction\n\n- `id uuid pk`\n- `amount numeric not null`\n- `title varchar(100)`\n- `description text`\n- `date timestamp default now() not null`\n- `created_at timestamp now()`\n- `frequency enum(daily, weekly, monthly, yearly, one-time, other) default one-time`\n- `updated_at timestamp now()`\n- `method enum(bank_transfer, mobile_money, cash, card, other) not null`\n- `status enum(active, inactive) default active`\n- `type enum(income, expense, loan, other) not null`\n- `expiration_date timestamp`\n- `user_id uuid fk references user(id) not null`\n- `currency_unit enum(EUR, MGA, USD, GBP, CHF, CAD, JPY, CNY, AUD, ZAR) default MGA`",
+      "x": -330,
+      "y": 315,
+      "width": 766,
+      "height": 510,
+      "color": "#ffffff"
+    },
+    {
+      "id": "57f3d8f7289214dc",
+      "type": "text",
+      "text": "# user\n\n- `id uuid pk`\n- `email varchar(100) unique not null`\n- `first_name varchar(100)`\n- `last_name varchar(100) not null`\n- `username varchar(100) unique not null`\n- `password varchar(255) not null`\n- `created_at timestamp now()`\n- `last_logged_in_at timestamp now()`\n- `status enum(active, inactive, locked) default active`\n- `updated_at timestamp now()`\n- `recovery_data text not null`\n- `organization_name varchar(100)`\n- `account_type enum(individual, organization, other) default individual`",
+      "x": -330,
+      "y": -730,
+      "width": 766,
+      "height": 480,
+      "color": "#ffffff"
+    },
+    {
+      "id": "pwd1609ee8baea3",
+      "type": "text",
+      "text": "# password_history\n\n- `id uuid pk`\n- `user_id uuid fk references user(id) not null`\n- `password_hash varchar(255) not null`\n- `created_at timestamp now()`",
+      "x": -330,
+      "y": -180,
+      "width": 766,
+      "height": 280,
+      "color": "#ffffff"
+    }
+  ],
+  "edges": [
+    {
+      "id": "946fe02812c19490",
+      "fromNode": "e81a3b80207dd886",
+      "fromSide": "bottom",
+      "toNode": "972b536bfff8b94a",
+      "toSide": "top",
+      "toEnd": "none",
+      "color": "6",
+      "label": "1,N"
+    },
+    {
+      "id": "659079cf0454a6bc",
+      "fromNode": "972b536bfff8b94a",
+      "fromSide": "bottom",
+      "toNode": "edd7c4d0892f8f3e",
+      "toSide": "top",
+      "toEnd": "none",
+      "color": "6",
+      "label": "1,N"
+    },
+    {
+      "id": "8455ea19e76bdb15",
+      "fromNode": "57f3d8f7289214dc",
+      "fromSide": "bottom",
+      "toNode": "99c7381465ec43ac",
+      "toSide": "top",
+      "toEnd": "none",
+      "color": "6",
+      "label": "1,N"
+    },
+    {
+      "id": "5dd9e3016c182f41",
+      "fromNode": "99c7381465ec43ac",
+      "fromSide": "bottom",
+      "toNode": "e81a3b80207dd886",
+      "toSide": "top",
+      "toEnd": "none",
+      "color": "6",
+      "label": "1,1"
+    },
+    {
+      "id": "6826e45585d9dc81",
+      "fromNode": "ebe3dcf6cb767eb4",
+      "fromSide": "bottom",
+      "toNode": "b385ea7ca3062ed3",
+      "toSide": "top",
+      "toEnd": "none",
+      "color": "6",
+      "label": "1,N"
+    },
+    {
+      "id": "a1373e40e59ca01f",
+      "fromNode": "b385ea7ca3062ed3",
+      "fromSide": "bottom",
+      "toNode": "57f3d8f7289214dc",
+      "toSide": "top",
+      "toEnd": "none",
+      "color": "6",
+      "label": "1,N"
+    },
+    {
+      "id": "edge2819a93405ca",
+      "fromNode": "e81a3b80207dd886",
+      "fromSide": "bottom",
+      "toNode": "pwd1609ee8baea3",
+      "toSide": "top",
+      "toEnd": "none",
+      "color": "6",
+      "label": "1,N"
+    }
+  ]
 }
