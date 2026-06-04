@@ -149,6 +149,20 @@ components:
           description: Current password for verification
           example: s3cur3P@ss
 
+    EmailUpdateResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Email updated successfully
+        email:
+          type: string
+          format: email
+          example: new.email@domain.com
+      required:
+        - message
+        - email
+
     UserResponse:
       type: object
       properties:
@@ -952,7 +966,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                $ref: '#/components/schemas/EmailUpdateResponse'
         '400':
           description: Malformed request body
           content:
