@@ -373,10 +373,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        deletedAt:
-          type: string
-          format: date-time
-          nullable: true
+
         frequency:
           $ref: '#/components/schemas/TransactionFrequency'
         method:
@@ -389,9 +386,7 @@ components:
           type: string
           format: date-time
           nullable: true
-        unit:
-          type: string
-          example: EUR
+
         currency:
           $ref: '#/components/schemas/CurrencySummary'
         categories:
@@ -410,7 +405,6 @@ components:
         - method
         - type
         - status
-        - unit
         - currency
         - categories
         - userId
