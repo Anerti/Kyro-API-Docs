@@ -2372,7 +2372,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OrganizationMemberResponse'
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Member added successfully
         '400':
           description: User not found or already a member
           content:
