@@ -781,7 +781,7 @@ components:
           description: Token expiration timestamp
           example: "2026-06-04T18:30:00Z"
 
-    RecoveryCodesResponse:
+    RecoveryDataResponse:
       type: object
       required:
         - codes
@@ -801,15 +801,27 @@ components:
             - YZ56-AB78-CD90-EF12-GH34-IJ56
             - KL78-MN90-OP12-QR34-ST56-UV78
 
-    RegisterResponse:
+    UserWithRecoveryResponse:
       allOf:
-        - $ref: '#/components/schemas/LoginResponse'
+        - $ref: '#/components/schemas/UserResponse'
         - type: object
           required:
-            - recoveryCodes
+            - recoveryData
           properties:
-            recoveryCodes:
-              $ref: '#/components/schemas/RecoveryCodesResponse'
+            recoveryData:
+              $ref: '#/components/schemas/RecoveryDataResponse'
+
+    RegisterResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbG...NiIs...
+        user:
+          $ref: '#/components/schemas/UserWithRecoveryResponse'
+      required:
+        - token
+        - user
 
     ResetPasswordRequest:
       type: object
@@ -1326,7 +1338,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RecoveryCodesResponse'
+                $ref: '#/components/schemas/RecoveryDataResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
 
