@@ -547,16 +547,25 @@ components:
     LoginRequest:
       type: object
       required:
-        - username
         - password
       properties:
         username:
           type: string
           example: jdoe
+        email:
+          type: string
+          format: email
+          example: john.doe@email.com
         password:
           type: string
           format: password
           example: s3cur3P@ss
+      oneOf:
+        - required:
+            - username
+        - required:
+            - email
+      description: Login with either `username` or `email` (at least one required)
 
     LoginResponse:
       type: object
