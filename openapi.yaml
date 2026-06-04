@@ -931,6 +931,16 @@ paths:
                   - pagination
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 422
+                error: Unprocessable Entity
+                message: "Invalid sort value. Allowed: date, -date, amount, -amount, createdAt, -createdAt"
     post:
       tags:
         - Transactions
