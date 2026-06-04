@@ -99,11 +99,11 @@ components:
           example: s3cur3P@ss
         accountType:
           $ref: '#/components/schemas/AccountType'
-        organisationName:
+        organizationName:
           type: string
           nullable: true
-          maxLength: 200
-          description: Required if accountType is `organisation`
+          maxLength: 100
+          description: Required if accountType is `organization`
           example: Acme Corp
 
     UserUpdateRequest:
@@ -127,6 +127,14 @@ components:
           type: string
           maxLength: 100
           example: jdoe
+        accountType:
+          $ref: '#/components/schemas/AccountType'
+        organizationName:
+          type: string
+          nullable: true
+          maxLength: 100
+          description: Required if accountType is `organization`
+          example: Acme Corp
       minProperties: 1
 
     UserResponse:
@@ -150,9 +158,8 @@ components:
         username:
           type: string
           example: jdoe
-        isLocked:
-          type: boolean
-          example: false
+        status:
+          $ref: '#/components/schemas/UserStatus'
         createdAt:
           type: string
           format: date-time
@@ -164,11 +171,10 @@ components:
         lastLoggedInAt:
           type: string
           format: date-time
-          nullable: true
           example: '2026-06-04T12:00:00Z'
         accountType:
           $ref: '#/components/schemas/AccountType'
-        organisationName:
+        organizationName:
           type: string
           nullable: true
           example: Acme Corp
@@ -177,7 +183,7 @@ components:
         - email
         - lastName
         - username
-        - isLocked
+        - status
         - accountType
         - createdAt
         - updatedAt
@@ -204,6 +210,8 @@ components:
         username:
           type: string
           example: jdoe
+        status:
+          $ref: '#/components/schemas/UserStatus'
         createdAt:
           type: string
           format: date-time
@@ -215,11 +223,10 @@ components:
         lastLoggedInAt:
           type: string
           format: date-time
-          nullable: true
           example: '2026-06-04T12:00:00Z'
         accountType:
           $ref: '#/components/schemas/AccountType'
-        organisationName:
+        organizationName:
           type: string
           nullable: true
           example: Acme Corp
@@ -228,6 +235,7 @@ components:
         - email
         - lastName
         - username
+        - status
         - accountType
         - createdAt
         - updatedAt
@@ -237,13 +245,14 @@ components:
       enum:
         - active
         - inactive
+        - locked
       example: active
 
     AccountType:
       type: string
       enum:
         - individual
-        - organisation
+        - organization
         - other
       example: individual
 
@@ -254,8 +263,7 @@ components:
         - amount
         - method
         - type
-        - currencyId
-        - unit
+        - currencyUnit
       properties:
         amount:
           type: number
@@ -286,14 +294,8 @@ components:
           format: date-time
           nullable: true
           description: Only applicable to loans
-        currencyId:
-          type: string
-          format: uuid
-          example: b2c3d4e5-f6a7-8901-bcde-f12345678901
-        unit:
-          type: string
-          maxLength: 20
-          example: EUR
+        currencyUnit:
+          $ref: '#/components/schemas/CurrencyUnit'
         categoryIds:
           type: array
           items:
@@ -332,12 +334,8 @@ components:
           type: string
           format: date-time
           nullable: true
-        currencyId:
-          type: string
-          format: uuid
-        unit:
-          type: string
-          maxLength: 20
+        currencyUnit:
+          $ref: '#/components/schemas/CurrencyUnit'
         status:
           $ref: '#/components/schemas/TransactionStatus'
         categoryIds:
@@ -387,15 +385,12 @@ components:
           format: date-time
           nullable: true
 
-        currency:
-          $ref: '#/components/schemas/CurrencySummary'
+        currencyUnit:
+          $ref: '#/components/schemas/CurrencyUnit'
         categories:
           type: array
           items:
             $ref: '#/components/schemas/CategorySummary'
-        userId:
-          type: string
-          format: uuid
       required:
         - id
         - amount
@@ -405,9 +400,8 @@ components:
         - method
         - type
         - status
-        - currency
+        - currencyUnit
         - categories
-        - userId
 
     TransactionStatus:
       type: string
@@ -556,23 +550,20 @@ components:
         - createdAt
         - updatedAt
 
-    CurrencySummary:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-          example: EUR
-        exchangeRate:
-          type: number
-          format: decimal
-          example: 1.08
-      required:
-        - id
-        - name
-        - exchangeRate
+    CurrencyUnit:
+      type: string
+      enum:
+        - EUR
+        - MGA
+        - USD
+        - GBP
+        - CHF
+        - CAD
+        - JPY
+        - CNY
+        - AUD
+        - ZAR
+      example: MGA
 
     # ──────────── Auth ────────────
     LoginRequest:
@@ -866,12 +857,22 @@ paths:
           schema:
             $ref: '#/components/schemas/TransactionStatus'
           description: Filter by status
-        - name: categoryId
+        - name: categoryName
           in: query
           schema:
             type: string
-            format: uuid
-          description: Filter by category
+            maxLength: 100
+          description: Filter by category name
+        - name: currencyUnit
+          in: query
+          schema:
+            $ref: '#/components/schemas/CurrencyUnit'
+          description: Filter by currency
+        - name: frequency
+          in: query
+          schema:
+            $ref: '#/components/schemas/TransactionFrequency'
+          description: Filter by frequency
         - name: dateFrom
           in: query
           schema:
@@ -905,12 +906,6 @@ paths:
           description: >-
             Sort field. Prefix with `-` for descending.
             Example: `-date` = most recent first.
-        - name: includeDeleted
-          in: query
-          schema:
-            type: boolean
-            default: false
-          description: Include soft-deleted transactions
       responses:
         '200':
           description: Paginated list of transactions
