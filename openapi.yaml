@@ -619,6 +619,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Malformed request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 400
+                error: Bad Request
+                message: "Malformed request body"
         '409':
           description: Email or username already taken
           content:
