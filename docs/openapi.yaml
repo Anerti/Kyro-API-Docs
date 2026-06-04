@@ -718,22 +718,13 @@ components:
     OrganizationMemberResponse:
       type: object
       required:
-        - userId
+        - user
         - role
         - joinedAt
       properties:
-        userId:
-          type: string
-          format: uuid
-          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
-        firstName:
-          type: string
-          nullable: true
-        lastName:
-          type: string
-        email:
-          type: string
-          format: email
+        user:
+          $ref: '#/components/schemas/UserProfile'
+          description: Member user profile
         role:
           $ref: '#/components/schemas/MemberRole'
         joinedAt:
