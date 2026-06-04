@@ -1082,6 +1082,16 @@ paths:
                 status: 401
                 error: Unauthorized
                 message: "Invalid or expired reset token"
+        '409':
+          description: Password already used
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 409
+                error: Conflict
+                message: "Password has already been used recently"
         '422':
           description: Invalid input data
           content:
