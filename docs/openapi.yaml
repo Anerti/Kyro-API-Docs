@@ -850,6 +850,26 @@ components:
           description: The user's original question or request
           example: Combien j'ai dépensé ce mois-ci ?
 
+    AiConversationCreateResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        title:
+          type: string
+          description: Auto-generated from the user request
+          example: Budget de juin
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-06-05T14:30:00Z'
+      required:
+        - id
+        - title
+        - createdAt
+
     AiConversationUpdateRequest:
       type: object
       properties:
@@ -2648,7 +2668,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AiConversationResponse'
+                $ref: '#/components/schemas/AiConversationCreateResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
