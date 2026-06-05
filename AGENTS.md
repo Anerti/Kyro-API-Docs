@@ -12,7 +12,7 @@ Personal finance management API — transactions, categories, user auth, IP trac
 
 ```
 tetibola/
-  openapi.yaml      — Full API spec (23 endpoints, 45+ schemas)
+  openapi.yaml      — Full API spec (en cours, 28+ endpoints, 50+ schemas)
   mcd.canvas        — MCD diagram (Obsidian Canvas)
   .obsidian/        — Obsidian vault config + plugins
 ```
@@ -26,6 +26,7 @@ tetibola/
 | Transactions | `GET/POST /transactions`, `GET /transactions/summary`, `GET/PATCH/DELETE /transactions/{transactionId}` |
 | Categories | `GET/POST /categories`, `GET/PATCH/DELETE /categories/{categoryId}` |
 | IP Addresses | `GET /users/me/ip-addresses`, `PATCH/DELETE /users/me/ip-addresses/{ipAddressId}` |
+| AI Conversations | `GET/POST /users/me/conversations`, `GET/DELETE /users/me/conversations/{conversationId}` |
 
 ## Conventions
 

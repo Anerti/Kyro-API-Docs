@@ -25,9 +25,10 @@ Base URL: `http://localhost:8080/api/v1`
 | Transactions | `GET/POST /transactions`, `GET /transactions/summary`, `GET/PATCH/DELETE /transactions/{id}` |
 | Categories | `GET/POST /categories`, `GET/PATCH/DELETE /categories/{id}` |
 | IP Addresses | `GET /users/me/ip-addresses`, `PATCH/DELETE /users/me/ip-addresses/{id}` |
+| AI Conversations | `GET/POST /users/me/conversations`, `GET/DELETE /users/me/conversations/{id}` |
 
 Full spec at `openapi.yaml`.
 
 ---
 
-*Spec-first · OpenAPI 3.0.3 · Obsidian Canvas · 23 endpoints*
+*Spec-first · OpenAPI 3.0.3 · Obsidian Canvas · 28+ endpoints*
