@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Tetibola API
+  title: Kyro API
   description: >-
     Personal finance management API — transactions, categories, currencies,
     organizations, and user connection tracking.
@@ -12,12 +12,12 @@ info:
   version: 1.0.0
   contact:
     name: API Support
-    email: support@tetibola.com
+    email: support@kyro.app
 
 servers:
   - url: http://localhost:8080/api/v1
     description: Local development
-  - url: https://api.tetibola.com/api/v1
+  - url: https://api.kyro.app/api/v1
     description: Production
 
 components:

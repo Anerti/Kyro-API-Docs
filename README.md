@@ -1,4 +1,4 @@
-# Tetibola
+# Kyro
 
 Personal finance management API.
 
