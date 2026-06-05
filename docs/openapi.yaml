@@ -1086,6 +1086,65 @@ components:
           format: uuid
           description: ID of the admin member to transfer ownership to
 
+    # ──────────── Data Export ────────────
+    UserExportResponse:
+      type: object
+      description: All personal data of the authenticated user (GDPR portability)
+      required:
+        - user
+        - transactions
+        - categories
+        - ipAddresses
+        - organizations
+        - exportedAt
+      properties:
+        user:
+          $ref: '#/components/schemas/UserResponse'
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionResponse'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryResponse'
+        ipAddresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/IpAddressResponse'
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationSummary'
+        exportedAt:
+          type: string
+          format: date-time
+          example: '2026-06-05T14:30:00Z'
+
+    OrganizationExportResponse:
+      type: object
+      description: All data for an organization
+      required:
+        - organization
+        - members
+        - transactions
+        - exportedAt
+      properties:
+        organization:
+          $ref: '#/components/schemas/OrganizationResponse'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationMemberResponse'
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionResponse'
+        exportedAt:
+          type: string
+          format: date-time
+          example: '2026-06-05T14:30:00Z'
+
   responses:
     Unauthorized:
       description: Missing, invalid or expired token
@@ -1577,6 +1636,58 @@ paths:
                 status: 422
                 error: Unprocessable Entity
                 message: Invalid email format
+
+  /users/me/export:
+    get:
+      tags:
+        - Users
+      summary: Export all my data
+      description: >-
+        Returns all personal data of the authenticated user — profile,
+        transactions, categories, IP addresses, and organizations.
+        Useful for data portability, backup, or account migration.
+      operationId: exportMyData
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: All user data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserExportResponse'
+              example:
+                user:
+                  id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                  username: johndoe
+                  email: john@example.com
+                  displayName: John Doe
+                  status: active
+                  createdAt: '2026-01-15T08:30:00Z'
+                  updatedAt: '2026-06-05T12:00:00Z'
+                transactions:
+                  - id: b2c3d4e5-f6a7-8901-bcde-f12345678901
+                    amount: 150.00
+                    title: Groceries
+                    date: '2026-06-04T10:30:00Z'
+                    type: expense
+                    method: card
+                    status: active
+                categories:
+                  - id: c3d4e5f6-a7b8-9012-cdef-123456789012
+                    name: Food & Groceries
+                    type: expense
+                ipAddresses:
+                  - id: d4e5f6a7-b8c9-0123-defa-234567890123
+                    ipAddress: 192.168.1.42
+                    status: active
+                organizations:
+                  - id: e5f6a7b8-c9d0-1234-efab-345678901234
+                    name: Family Budget
+                    role: owner
+                exportedAt: '2026-06-05T14:30:00Z'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
   # ──────────── Transactions ────────────
   /transactions:
@@ -2770,3 +2881,60 @@ paths:
           $ref: '#/components/responses/NotFound'
         '422':
           $ref: '#/components/responses/Unprocessable'
+
+  /organizations/{organizationId}/export:
+    get:
+      tags:
+        - Organizations
+      summary: Export organization data
+      description: >-
+        Returns all data for an organization — details, members, and
+        associated transactions. Only accessible by organization members.
+      operationId: exportOrganizationData
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Organization data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationExportResponse'
+              example:
+                organization:
+                  id: e5f6a7b8-c9d0-1234-efab-345678901234
+                  name: Family Budget
+                  description: Shared family expenses
+                  currencyUnit: EUR
+                  ownerId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                  status: active
+                  createdAt: '2026-02-01T09:00:00Z'
+                members:
+                  - userId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                    role: owner
+                    joinedAt: '2026-02-01T09:00:00Z'
+                  - userId: f6a7b8c9-d0e1-2345-fabc-456789012345
+                    role: admin
+                    joinedAt: '2026-02-15T14:00:00Z'
+                transactions:
+                  - id: b2c3d4e5-f6a7-8901-bcde-f12345678901
+                    amount: 250.00
+                    title: Internet bill
+                    date: '2026-06-01T08:00:00Z'
+                    type: expense
+                    method: bank_transfer
+                    status: active
+                exportedAt: '2026-06-05T14:30:00Z'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
