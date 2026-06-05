@@ -839,6 +839,59 @@ components:
         status:
           $ref: '#/components/schemas/IpAddressStatusUpdate'
 
+    # ──────────── AI Conversation ────────────
+    AiConversationCreateRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          maxLength: 100
+          example: Budget de juin
+        data:
+          type: string
+          description: JSON object holding the conversation history
+          nullable: true
+          example: "[]"
+
+    AiConversationUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+          example: Budget de juin — récap
+        data:
+          type: string
+          description: JSON object holding the conversation history
+          example: '[{"role":"user","content":"combien jai depensé ce mois"},{"role":"assistant","content":"Vous avez dépensé 320 000 Ar ce mois-ci"}]'
+      minProperties: 1
+
+    AiConversationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        title:
+          type: string
+          example: Budget de juin
+        data:
+          type: string
+          description: JSON conversation history
+          example: '[{"role":"user","content":"combien jai depensé ce mois"},{"role":"assistant","content":"Vous avez dépensé 320 000 Ar ce mois-ci"}]'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-06-05T14:30:00Z'
+      required:
+        - id
+        - title
+        - data
+        - createdAt
+
     # ──────────── Auth ────────────
     LoginRequest:
       type: object
@@ -1136,6 +1189,7 @@ components:
         - transactions
         - categories
         - ipAddresses
+        - conversations
         - organizations
         - exportedAt
       properties:
@@ -1153,6 +1207,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/IpAddressResponse'
+        conversations:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiConversationResponse'
         organizations:
           type: array
           items:
@@ -1732,6 +1790,11 @@ paths:
                     userAgent: Mozilla/5.0 (X11; Linux x86_64) Chrome/120.0.6099.199
                     lastSeenAt: '2026-06-04T12:00:00Z'
                     createdAt: '2026-06-04T10:30:00Z'
+                conversations:
+                  - id: f6a7b8c9-d0e1-2345-fabc-456789012345
+                    title: Budget de juin
+                    data: '[{"role":"user","content":"combien jai depensé ce mois"},{"role":"assistant","content":"320 000 Ar"}]'
+                    createdAt: '2026-06-05T14:30:00Z'
                 organizations:
                   - id: e5f6a7b8-c9d0-1234-efab-345678901234
                     name: Family Budget
@@ -2497,6 +2560,180 @@ paths:
       responses:
         '204':
           description: IP address link removed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ──────────── AI Conversations ────────────
+  /users/me/conversations:
+    get:
+      tags:
+        - AI Conversations
+      summary: List my AI conversations
+      description: Returns all AI conversations for the authenticated user, most recent first.
+      operationId: listMyConversations
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+          description: Search by title
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Start date (YYYY-MM-DD)
+        - name: dateTo
+          in: query
+          schema:
+            type: string
+            format: date
+          description: End date (YYYY-MM-DD)
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum:
+              - createdAt
+              - -createdAt
+              - title
+              - -title
+            default: -createdAt
+          description: Sort field. Prefix with `-` for descending.
+      responses:
+        '200':
+          description: List of AI conversations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AiConversationResponse'
+                required:
+                  - data
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - AI Conversations
+      summary: Create an AI conversation
+      description: Creates a new AI conversation with an optional initial data payload.
+      operationId: createConversation
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiConversationCreateRequest'
+      responses:
+        '201':
+          description: Conversation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiConversationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+
+  /users/me/conversations/{conversationId}:
+    get:
+      tags:
+        - AI Conversations
+      summary: Get an AI conversation
+      operationId: getConversation
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Conversation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiConversationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - AI Conversations
+      summary: Update an AI conversation
+      description: Updates the title and/or data of an existing conversation.
+      operationId: updateConversation
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiConversationUpdateRequest'
+      responses:
+        '200':
+          description: Conversation updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiConversationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+    delete:
+      tags:
+        - AI Conversations
+      summary: Delete an AI conversation
+      operationId: deleteConversation
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Conversation deleted
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
