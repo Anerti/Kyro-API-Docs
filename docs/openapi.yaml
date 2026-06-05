@@ -1009,10 +1009,82 @@ components:
       type: object
       required:
         - message
+        - recoveryData
       properties:
         message:
           type: string
           example: Password reset successfully
+        recoveryData:
+          $ref: '#/components/schemas/RecoveryDataResponse'
+
+    # ──────────── Bulk Operations ────────────
+    BulkIdsRequest:
+      type: object
+      required:
+        - ids
+      properties:
+        ids:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: string
+            format: uuid
+          example:
+            - a1b2c3d4-e5f6-7890-abcd-ef1234567890
+            - b2c3d4e5-f6a7-8901-bcde-f12345678901
+
+    BulkUpdateTransactionsRequest:
+      type: object
+      required:
+        - ids
+      properties:
+        ids:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: string
+            format: uuid
+        data:
+          type: object
+          description: Fields to apply to all targeted transactions
+          properties:
+            categoryNames:
+              type: array
+              items:
+                type: string
+            status:
+              $ref: '#/components/schemas/TransactionStatus'
+            organizationId:
+              type: string
+              format: uuid
+              nullable: true
+          minProperties: 1
+
+    BulkOperationResponse:
+      type: object
+      required:
+        - message
+        - affectedCount
+      properties:
+        message:
+          type: string
+          example: 12 transactions updated
+        affectedCount:
+          type: integer
+          example: 12
+
+    # ──────────── Organization ────────────
+    TransferOwnershipRequest:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: ID of the admin member to transfer ownership to
 
   responses:
     Unauthorized:
@@ -1241,7 +1313,7 @@ paths:
       tags:
         - Authentication
       summary: Reset password with token
-      description: Resets the user's password using a valid reset token.
+      description: Resets the user's password using a valid reset token. New recovery data (backup codes) are generated and returned in the response.
       operationId: resetPassword
       security: []
       requestBody:
@@ -1259,6 +1331,16 @@ paths:
                 $ref: '#/components/schemas/ResetPasswordResponse'
               example:
                 message: Password reset successfully
+                recoveryData:
+                  codes:
+                    - XK4J-MN92-PL7R-8FT3-BR27-LA1Q
+                    - QZ95-PD61-WC4X-VN82-GT54-YS6M
+                    - 3H71-JK48-BD9F-WR65-AC73-FP2N
+                    - 9E13-LM86-TZ5G-PB45-RS90-VH4W
+                    - AB12-CD34-EF56-GH78-IJ90-KL12
+                    - MN34-OP56-QR78-ST90-UV12-WX34
+                    - YZ56-AB78-CD90-EF12-GH34-IJ56
+                    - KL78-MN90-OP12-QR34-ST56-UV78
         '400':
           description: Malformed request body
           content:
@@ -1279,16 +1361,6 @@ paths:
                 status: 401
                 error: Unauthorized
                 message: "Invalid or expired reset token"
-        '409':
-          description: Password already used
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                status: 409
-                error: Conflict
-                message: "Password has already been used recently"
         '422':
           description: Invalid input data
           content:
@@ -1298,7 +1370,7 @@ paths:
               example:
                 status: 422
                 error: Unprocessable Entity
-                message: "Passwords do not match or do not meet security requirements"
+                message: "Password has already been used recently"
 
   # ──────────── Users ────────────
   /users/me:
@@ -1739,6 +1811,80 @@ paths:
                 error: Unprocessable Entity
                 message: "Invalid groupBy value. Allowed: day, week, month, category"
 
+  /transactions/export:
+    get:
+      tags:
+        - Transactions
+      summary: Export transactions as CSV
+      description: >-
+        Exports transactions filtered by the same parameters as the list endpoint
+        in CSV format, for use in spreadsheets and accounting tools.
+      operationId: exportTransactionsCsv
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/TransactionType'
+          description: Filter by type
+        - name: method
+          in: query
+          schema:
+            $ref: '#/components/schemas/TransactionMethod'
+          description: Filter by payment method
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/TransactionStatus'
+          description: Filter by status
+        - name: categoryName
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+          description: Filter by category name
+        - name: currencyUnit
+          in: query
+          schema:
+            $ref: '#/components/schemas/CurrencyUnit'
+          description: Filter by currency
+        - name: frequency
+          in: query
+          schema:
+            $ref: '#/components/schemas/TransactionFrequency'
+          description: Filter by frequency
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Start date (YYYY-MM-DD)
+        - name: dateTo
+          in: query
+          schema:
+            type: string
+            format: date
+          description: End date (YYYY-MM-DD)
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+          description: Search in title and description
+      responses:
+        '200':
+          description: CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+                example: "id,amount,title,date,type,method,status\nuuid,150.00,\"Groceries\",2026-06-04,expense,card,active"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+
   /transactions/{transactionId}:
     get:
       tags:
@@ -1833,6 +1979,70 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+
+  # ──────────── Transactions — Bulk ────────────
+  /transactions/bulk/delete:
+    post:
+      tags:
+        - Transactions
+      summary: Bulk delete transactions (soft delete)
+      operationId: bulkDeleteTransactions
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkIdsRequest'
+      responses:
+        '200':
+          description: Transactions deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationResponse'
+              example:
+                message: 12 transactions deleted
+                affectedCount: 12
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+
+  /transactions/bulk/update:
+    patch:
+      tags:
+        - Transactions
+      summary: Bulk update transactions
+      description: Applies the same field values to all specified transactions.
+      operationId: bulkUpdateTransactions
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkUpdateTransactionsRequest'
+      responses:
+        '200':
+          description: Transactions updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationResponse'
+              example:
+                message: 12 transactions updated
+                affectedCount: 12
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
 
   # ──────────── Categories ────────────
   /categories:
@@ -2484,6 +2694,74 @@ paths:
       responses:
         '204':
           description: Member removed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+
+  /organizations/{organizationId}/me:
+    delete:
+      tags:
+        - Organizations
+      summary: Leave an organization
+      description: Removes the authenticated user from the organization's members.
+      operationId: leaveOrganization
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Left the organization
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+
+  /organizations/{organizationId}/transfer-ownership:
+    post:
+      tags:
+        - Organizations
+      summary: Transfer organization ownership
+      description: Transfers ownership to another admin member. Only the current owner can perform this action.
+      operationId: transferOrganizationOwnership
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferOwnershipRequest'
+      responses:
+        '200':
+          description: Ownership transferred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Ownership transferred successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
