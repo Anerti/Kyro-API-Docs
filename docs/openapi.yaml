@@ -804,6 +804,11 @@ components:
         loginAttempt:
           type: integer
           example: 0
+        userAgent:
+          type: string
+          maxLength: 255
+          nullable: true
+          example: Mozilla/5.0 (X11; Linux x86_64) Chrome/120.0.6099.199
         lastSeenAt:
           type: string
           format: date-time
@@ -1724,6 +1729,7 @@ paths:
                     ipAddress: 192.168.1.42
                     status: active
                     loginAttempt: 0
+                    userAgent: Mozilla/5.0 (X11; Linux x86_64) Chrome/120.0.6099.199
                     lastSeenAt: '2026-06-04T12:00:00Z'
                     createdAt: '2026-06-04T10:30:00Z'
                 organizations:
