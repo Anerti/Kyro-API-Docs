@@ -849,9 +849,9 @@ components:
           type: string
           maxLength: 100
           example: Budget de juin
-        data:
+        content:
           type: string
-          description: JSON object holding the conversation history
+          description: JSON conversation content (message history array)
           nullable: true
           example: "[]"
 
@@ -862,10 +862,10 @@ components:
           type: string
           maxLength: 100
           example: Budget de juin — récap
-        data:
+        content:
           type: string
-          description: JSON object holding the conversation history
-          example: '[{"role":"user","content":"combien jai depensé ce mois"},{"role":"assistant","content":"Vous avez dépensé 320 000 Ar ce mois-ci"}]'
+          description: JSON conversation content (message history array)
+          example: '[{"role":"user","content":"combien jai depensé ce mois"}]'
       minProperties: 1
 
     AiConversationResponse:
@@ -878,10 +878,10 @@ components:
         title:
           type: string
           example: Budget de juin
-        data:
+        content:
           type: string
-          description: JSON conversation history
-          example: '[{"role":"user","content":"combien jai depensé ce mois"},{"role":"assistant","content":"Vous avez dépensé 320 000 Ar ce mois-ci"}]'
+          description: JSON conversation content (message history array)
+          example: '[{"role":"user","content":"combien jai depensé ce mois"},{"role":"assistant","content":"320 000 Ar"}]'
         createdAt:
           type: string
           format: date-time
@@ -889,7 +889,7 @@ components:
       required:
         - id
         - title
-        - data
+        - content
         - createdAt
 
     # ──────────── Auth ────────────
@@ -1793,7 +1793,7 @@ paths:
                 conversations:
                   - id: f6a7b8c9-d0e1-2345-fabc-456789012345
                     title: Budget de juin
-                    data: '[{"role":"user","content":"combien jai depensé ce mois"},{"role":"assistant","content":"320 000 Ar"}]'
+                    content: '[{"role":"user","content":"combien jai depensé ce mois"},{"role":"assistant","content":"320 000 Ar"}]'
                     createdAt: '2026-06-05T14:30:00Z'
                 organizations:
                   - id: e5f6a7b8-c9d0-1234-efab-345678901234
