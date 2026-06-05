@@ -843,22 +843,12 @@ components:
     AiConversationCreateRequest:
       type: object
       required:
-        - title
         - userRequest
       properties:
-        title:
-          type: string
-          maxLength: 100
-          example: Budget de juin
         userRequest:
           type: string
           description: The user's original question or request
           example: Combien j'ai dépensé ce mois-ci ?
-        aiResponse:
-          type: string
-          description: The AI's generated response
-          nullable: true
-          example: "Vous avez dépensé 320 000 Ar ce mois-ci"
 
     AiConversationUpdateRequest:
       type: object
@@ -2642,7 +2632,7 @@ paths:
       tags:
         - AI Conversations
       summary: Create an AI conversation
-      description: Creates a new AI conversation with the user's request.
+      description: Creates a new AI conversation from the user's request. Title and AI response are set on update.
       operationId: createConversation
       security:
         - BearerAuth: []
