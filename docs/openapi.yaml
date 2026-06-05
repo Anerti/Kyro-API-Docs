@@ -861,6 +861,14 @@ components:
           type: string
           description: Auto-generated from the user request
           example: Budget de juin
+        aiResponse:
+          type: object
+          nullable: true
+          description: The AI's generated response (null until processed)
+          properties:
+            content:
+              type: string
+              example: "Vous avez dépensé 320 000 Ar ce mois-ci"
         createdAt:
           type: string
           format: date-time
