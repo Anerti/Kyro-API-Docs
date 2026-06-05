@@ -870,23 +870,6 @@ components:
         - title
         - createdAt
 
-    AiConversationUpdateRequest:
-      type: object
-      properties:
-        title:
-          type: string
-          maxLength: 100
-          example: Budget de juin — récap
-        userRequest:
-          type: string
-          description: Updated user request
-          example: Combien j'ai dépensé en alimentation ce mois-ci ?
-        aiResponse:
-          type: string
-          description: Updated AI response
-          example: "Vous avez dépensé 85 000 Ar en alimentation ce mois-ci"
-      minProperties: 1
-
     AiConversationResponse:
       type: object
       properties:
@@ -2704,44 +2687,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-    patch:
-      tags:
-        - AI Conversations
-      summary: Update an AI conversation
-      description: Updates the title, user request, and/or AI response of an existing conversation.
-      operationId: updateConversation
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: conversationId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AiConversationUpdateRequest'
-      responses:
-        '200':
-          description: Conversation updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AiConversationResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '422':
-          $ref: '#/components/responses/Unprocessable'
     delete:
       tags:
         - AI Conversations
