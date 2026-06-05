@@ -1087,6 +1087,42 @@ components:
           description: ID of the admin member to transfer ownership to
 
     # ──────────── Data Export ────────────
+    UserExportSummary:
+      description: User profile inside the export — without email (hashed) and without displayName
+      type: object
+      required:
+        - id
+        - lastName
+        - username
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        firstName:
+          type: string
+          nullable: true
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        username:
+          type: string
+          example: jdoe
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-01-15T08:30:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-06-05T12:00:00Z'
+
     UserExportResponse:
       type: object
       description: All personal data of the authenticated user (GDPR portability)
@@ -1099,7 +1135,7 @@ components:
         - exportedAt
       properties:
         user:
-          $ref: '#/components/schemas/UserResponse'
+          $ref: '#/components/schemas/UserExportSummary'
         transactions:
           type: array
           items:
@@ -1659,9 +1695,9 @@ paths:
               example:
                 user:
                   id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                  firstName: John
+                  lastName: Doe
                   username: johndoe
-                  email: john@example.com
-                  displayName: John Doe
                   status: active
                   createdAt: '2026-01-15T08:30:00Z'
                   updatedAt: '2026-06-05T12:00:00Z'
@@ -1669,9 +1705,15 @@ paths:
                   - id: b2c3d4e5-f6a7-8901-bcde-f12345678901
                     amount: 150.00
                     title: Groceries
+                    description: Weekly groceries — fruits, vegetables, milk
                     date: '2026-06-04T10:30:00Z'
+                    createdAt: '2026-06-04T10:30:00Z'
+                    updatedAt: '2026-06-04T10:30:00Z'
                     type: expense
                     method: card
+                    frequency: one-time
+                    expirationDate: null
+                    currencyUnit: EUR
                     status: active
                 categories:
                   - id: c3d4e5f6-a7b8-9012-cdef-123456789012
@@ -1681,6 +1723,9 @@ paths:
                   - id: d4e5f6a7-b8c9-0123-defa-234567890123
                     ipAddress: 192.168.1.42
                     status: active
+                    loginAttempt: 0
+                    lastSeenAt: '2026-06-04T12:00:00Z'
+                    createdAt: '2026-06-04T10:30:00Z'
                 organizations:
                   - id: e5f6a7b8-c9d0-1234-efab-345678901234
                     name: Family Budget
@@ -2912,10 +2957,14 @@ paths:
                   id: e5f6a7b8-c9d0-1234-efab-345678901234
                   name: Family Budget
                   description: Shared family expenses
-                  currencyUnit: EUR
-                  ownerId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                  email: budget@family.mg
+                  country: Madagascar
+                  contact: +261 34 12 345 67
+                  taxId: '4000012345'
                   status: active
+                  ownerId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
                   createdAt: '2026-02-01T09:00:00Z'
+                  updatedAt: '2026-02-01T09:00:00Z'
                 members:
                   - userId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
                     role: owner
@@ -2927,9 +2976,13 @@ paths:
                   - id: b2c3d4e5-f6a7-8901-bcde-f12345678901
                     amount: 250.00
                     title: Internet bill
+                    description: Monthly internet subscription
                     date: '2026-06-01T08:00:00Z'
                     type: expense
                     method: bank_transfer
+                    frequency: monthly
+                    currencyUnit: EUR
+                    expirationDate: null
                     status: active
                 exportedAt: '2026-06-05T14:30:00Z'
         '401':
