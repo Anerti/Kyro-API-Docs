@@ -844,16 +844,21 @@ components:
       type: object
       required:
         - title
+        - userRequest
       properties:
         title:
           type: string
           maxLength: 100
           example: Budget de juin
-        content:
+        userRequest:
           type: string
-          description: JSON conversation content (message history array)
+          description: The user's original question or request
+          example: Combien j'ai dépensé ce mois-ci ?
+        aiResponse:
+          type: string
+          description: The AI's generated response
           nullable: true
-          example: "[]"
+          example: "Vous avez dépensé 320 000 Ar ce mois-ci"
 
     AiConversationUpdateRequest:
       type: object
@@ -862,10 +867,14 @@ components:
           type: string
           maxLength: 100
           example: Budget de juin — récap
-        content:
+        userRequest:
           type: string
-          description: JSON conversation content (message history array)
-          example: '[{"role":"user","content":"combien jai depensé ce mois"}]'
+          description: Updated user request
+          example: Combien j'ai dépensé en alimentation ce mois-ci ?
+        aiResponse:
+          type: string
+          description: Updated AI response
+          example: "Vous avez dépensé 85 000 Ar en alimentation ce mois-ci"
       minProperties: 1
 
     AiConversationResponse:
@@ -878,10 +887,14 @@ components:
         title:
           type: string
           example: Budget de juin
-        content:
+        userRequest:
           type: string
-          description: JSON conversation content (message history array)
-          example: '[{"role":"user","content":"combien jai depensé ce mois"},{"role":"assistant","content":"320 000 Ar"}]'
+          description: The user's original question or request
+          example: Combien j'ai dépensé ce mois-ci ?
+        aiResponse:
+          type: string
+          description: The AI's generated response
+          example: "Vous avez dépensé 320 000 Ar ce mois-ci"
         createdAt:
           type: string
           format: date-time
@@ -889,7 +902,8 @@ components:
       required:
         - id
         - title
-        - content
+        - userRequest
+        - aiResponse
         - createdAt
 
     # ──────────── Auth ────────────
@@ -1793,7 +1807,8 @@ paths:
                 conversations:
                   - id: f6a7b8c9-d0e1-2345-fabc-456789012345
                     title: Budget de juin
-                    content: '[{"role":"user","content":"combien jai depensé ce mois"},{"role":"assistant","content":"320 000 Ar"}]'
+                    userRequest: Combien j'ai dépensé ce mois-ci ?
+                    aiResponse: "Vous avez dépensé 320 000 Ar ce mois-ci"
                     createdAt: '2026-06-05T14:30:00Z'
                 organizations:
                   - id: e5f6a7b8-c9d0-1234-efab-345678901234
@@ -2627,7 +2642,7 @@ paths:
       tags:
         - AI Conversations
       summary: Create an AI conversation
-      description: Creates a new AI conversation with an optional initial data payload.
+      description: Creates a new AI conversation with the user's request.
       operationId: createConversation
       security:
         - BearerAuth: []
@@ -2683,7 +2698,7 @@ paths:
       tags:
         - AI Conversations
       summary: Update an AI conversation
-      description: Updates the title and/or data of an existing conversation.
+      description: Updates the title, user request, and/or AI response of an existing conversation.
       operationId: updateConversation
       security:
         - BearerAuth: []
