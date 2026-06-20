@@ -129,13 +129,21 @@ components:
     UpdateEmailRequest:
       type: object
       required:
-        - email
+        - currentEmail
+        - newEmail
         - password
       properties:
-        email:
+        currentEmail:
           type: string
           format: email
           maxLength: 100
+          description: User's current email address (for verification)
+          example: john.doe@email.com
+        newEmail:
+          type: string
+          format: email
+          maxLength: 100
+          description: New email address to set
           example: new.email@domain.com
         password:
           type: string
