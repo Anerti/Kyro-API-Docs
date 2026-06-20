@@ -180,6 +180,8 @@ components:
           example: jdoe
         status:
           $ref: '#/components/schemas/UserStatus'
+        type:
+          $ref: '#/components/schemas/UserType'
         createdAt:
           type: string
           format: date-time
@@ -198,6 +200,7 @@ components:
         - lastName
         - username
         - status
+        - type
         - createdAt
         - updatedAt
 
@@ -225,6 +228,8 @@ components:
           example: jdoe
         status:
           $ref: '#/components/schemas/UserStatus'
+        type:
+          $ref: '#/components/schemas/UserType'
         createdAt:
           type: string
           format: date-time
@@ -243,6 +248,7 @@ components:
         - lastName
         - username
         - status
+        - type
         - createdAt
         - updatedAt
 
@@ -253,6 +259,13 @@ components:
         - inactive
         - locked
       example: active
+
+    UserType:
+      type: string
+      enum:
+        - freemium
+        - premium
+      example: freemium
 
     # ──────────── Transaction ────────────
     TransactionCreateRequest:
@@ -988,7 +1001,7 @@ components:
           format: email
           example: john.doe@email.com
         recoveryData:
-          $ref: '#/components/schemas/RecoveryDataResponse'
+          $ref: '#/components/schemas/RecoveryData'
 
     ForgotPasswordResponse:
       type: object
@@ -1010,27 +1023,23 @@ components:
           description: Token expiration timestamp
           example: "2026-06-04T18:30:00Z"
 
-    RecoveryDataResponse:
-      type: object
-      required:
-        - codes
-      properties:
-        codes:
-          type: array
-          items:
-            type: string
-          description: Keep these in a safe place. They won't be shown again.
-          example:
-            - XK4J-MN92-PL7R-8FT3-BR27-LA1Q
-            - QZ95-PD61-WC4X-VN82-GT54-YS6M
-            - 3H71-JK48-BD9F-WR65-AC73-FP2N
-            - 9E13-LM86-TZ5G-PB45-RS90-VH4W
-            - AB12-CD34-EF56-GH78-IJ90-KL12
-            - MN34-OP56-QR78-ST90-UV12-WX34
-            - YZ56-AB78-CD90-EF12-GH34-IJ56
-            - KL78-MN90-OP12-QR34-ST56-UV78
+    RecoveryData:
+      type: array
+      items:
+        type: string
+      description: Keep these in a safe place. They won't be shown again.
+      example:
+        - XK4J-MN92-PL7R-8FT3-BR27-LA1Q
+        - QZ95-PD61-WC4X-VN82-GT54-YS6M
+        - 3H71-JK48-BD9F-WR65-AC73-FP2N
+        - 9E13-LM86-TZ5G-PB45-RS90-VH4W
+        - AB12-CD34-EF56-GH78-IJ90-KL12
+        - MN34-OP56-QR78-ST90-UV12-WX34
+        - YZ56-AB78-CD90-EF12-GH34-IJ56
+        - KL78-MN90-OP12-QR34-ST56-UV78
 
     UserWithRecoveryResponse:
+      type: object
       allOf:
         - $ref: '#/components/schemas/UserResponse'
         - type: object
@@ -1038,7 +1047,7 @@ components:
             - recoveryData
           properties:
             recoveryData:
-              $ref: '#/components/schemas/RecoveryDataResponse'
+              $ref: '#/components/schemas/RecoveryData'
 
     RegisterResponse:
       type: object
@@ -1085,7 +1094,7 @@ components:
           type: string
           example: Password reset successfully
         recoveryData:
-          $ref: '#/components/schemas/RecoveryDataResponse'
+          $ref: '#/components/schemas/RecoveryData'
 
     # ──────────── Bulk Operations ────────────
     BulkIdsRequest:
@@ -1165,6 +1174,7 @@ components:
         - lastName
         - username
         - status
+        - type
         - createdAt
         - updatedAt
       properties:
@@ -1184,6 +1194,8 @@ components:
           example: jdoe
         status:
           $ref: '#/components/schemas/UserStatus'
+        type:
+          $ref: '#/components/schemas/UserType'
         createdAt:
           type: string
           format: date-time
@@ -1337,6 +1349,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RegisterResponse'
+              example:
+                token: eyJhbG...sw5c
+                user:
+                  id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                  email: john.doe@email.com
+                  firstName: John
+                  lastName: Doe
+                  username: jdoe
+                  status: active
+                  type: freemium
+                  createdAt: '2026-06-04T10:30:00Z'
+                  updatedAt: '2026-06-04T10:30:00Z'
+                  lastLoggedInAt: '2026-06-04T10:30:00Z'
+                  recoveryData:
+                    - XK4J-MN92-PL7R-8FT3-BR27-LA1Q
+                    - QZ95-PD61-WC4X-VN82-GT54-YS6M
+                    - 3H71-JK48-BD9F-WR65-AC73-FP2N
+                    - 9E13-LM86-TZ5G-PB45-RS90-VH4W
+                    - AB12-CD34-EF56-GH78-IJ90-KL12
+                    - MN34-OP56-QR78-ST90-UV12-WX34
+                    - YZ56-AB78-CD90-EF12-GH34-IJ56
+                    - KL78-MN90-OP12-QR34-ST56-UV78
         '400':
           description: Malformed request body
           content:
@@ -1502,15 +1536,14 @@ paths:
               example:
                 message: Password reset successfully
                 recoveryData:
-                  codes:
-                    - XK4J-MN92-PL7R-8FT3-BR27-LA1Q
-                    - QZ95-PD61-WC4X-VN82-GT54-YS6M
-                    - 3H71-JK48-BD9F-WR65-AC73-FP2N
-                    - 9E13-LM86-TZ5G-PB45-RS90-VH4W
-                    - AB12-CD34-EF56-GH78-IJ90-KL12
-                    - MN34-OP56-QR78-ST90-UV12-WX34
-                    - YZ56-AB78-CD90-EF12-GH34-IJ56
-                    - KL78-MN90-OP12-QR34-ST56-UV78
+                  - XK4J-MN92-PL7R-8FT3-BR27-LA1Q
+                  - QZ95-PD61-WC4X-VN82-GT54-YS6M
+                  - 3H71-JK48-BD9F-WR65-AC73-FP2N
+                  - 9E13-LM86-TZ5G-PB45-RS90-VH4W
+                  - AB12-CD34-EF56-GH78-IJ90-KL12
+                  - MN34-OP56-QR78-ST90-UV12-WX34
+                  - YZ56-AB78-CD90-EF12-GH34-IJ56
+                  - KL78-MN90-OP12-QR34-ST56-UV78
         '400':
           description: Malformed request body
           content:
