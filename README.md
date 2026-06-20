@@ -31,4 +31,4 @@ Full spec at `openapi.yaml`.
 
 ---
 
-*Spec-first · OpenAPI 3.0.3 · Obsidian Canvas · 28+ endpoints*
+*Spec-first · OpenAPI 3.0.3 · Obsidian Canvas · 30+ endpoints*

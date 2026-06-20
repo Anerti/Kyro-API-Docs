@@ -33,7 +33,7 @@ tetibola/
 - **US English** field names (organization, color)
 - **camelCase** for API fields (firstName, createdAt)
 - **UUID** primary keys on all entities
-- **Composite PKs** on junction tables (transaction_category, user_ip_address, user_password)
+- **Composite PKs** on junction tables (transaction_category, user_host, user_organization)
 - **Soft delete** is not used; entities have a `status` field (active/inactive)
 - **Password history** — stored in a dedicated `password` table; reuse is blocked server-side
 - **Email enumeration prevention** — forgot-password always returns 200
@@ -53,7 +53,8 @@ git commit -m "docs: update …"
 
 ## Common pitfalls
 
-- The MCD uses junction tables (user_transaction, transaction_category) as **conceptual reading aids** — they are NOT physical DB tables except when they carry extra attributes (user_ip_address has `last_seen_at`, transaction_category has timestamps). When unsure, check the canvas edges.
+- The MCD uses junction tables (user_transaction, transaction_currency, request_response) as **conceptual reading aids** — they are NOT physical DB tables except when they carry extra attributes (user_host has `last_seen_at`, transaction_category has timestamps, user_organization has `role` + `joined_at`). When unsure, check the canvas edges.
 - `user.password` was removed from the MCD — password is now a dedicated table linked via `user_password`.
+- Request/response link is 1:1, expressed via `response.request_id NOT NULL` FK. The `request_response` junction is a reading aid only.
 - OpenAPI spec uses `3.0.3` for compatibility with the Obsidian OpenAPI Renderer plugin.
 - Do NOT use `yaml.dump()` to rewrite hand-crafted YAML — it destroys formatting and comments.
