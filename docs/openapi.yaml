@@ -1183,6 +1183,7 @@ components:
         - username
         - status
         - type
+        - lastLoggedInAt
         - createdAt
         - updatedAt
       properties:
@@ -1204,6 +1205,11 @@ components:
           $ref: '#/components/schemas/UserStatus'
         type:
           $ref: '#/components/schemas/UserType'
+        lastLoggedInAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-06-04T12:00:00Z'
         createdAt:
           type: string
           format: date-time
@@ -1213,6 +1219,23 @@ components:
           format: date-time
           example: '2026-06-05T12:00:00Z'
 
+    UserOrganizationExport:
+      type: object
+      description: Organization membership as exposed in the user's data export
+      required:
+        - organization
+        - role
+        - joinedAt
+      properties:
+        organization:
+          $ref: '#/components/schemas/OrganizationSummary'
+        role:
+          $ref: '#/components/schemas/MemberRole'
+        joinedAt:
+          type: string
+          format: date-time
+          example: '2026-02-01T09:00:00Z'
+
     UserExportResponse:
       type: object
       description: All personal data of the authenticated user (GDPR portability)
@@ -1220,8 +1243,7 @@ components:
         - user
         - transactions
         - categories
-        - ipAddresses
-        - conversations
+        - hosts
         - organizations
         - exportedAt
       properties:
@@ -1235,18 +1257,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CategoryResponse'
-        ipAddresses:
+        hosts:
           type: array
           items:
             $ref: '#/components/schemas/IpAddressResponse'
-        conversations:
-          type: array
-          items:
-            $ref: '#/components/schemas/AiConversationResponse'
         organizations:
           type: array
           items:
-            $ref: '#/components/schemas/OrganizationSummary'
+            $ref: '#/components/schemas/UserOrganizationExport'
         exportedAt:
           type: string
           format: date-time
@@ -1815,6 +1833,8 @@ paths:
                   lastName: Doe
                   username: johndoe
                   status: active
+                  type: freemium
+                  lastLoggedInAt: '2026-06-04T12:00:00Z'
                   createdAt: '2026-01-15T08:30:00Z'
                   updatedAt: '2026-06-05T12:00:00Z'
                 transactions:
@@ -1834,8 +1854,7 @@ paths:
                 categories:
                   - id: c3d4e5f6-a7b8-9012-cdef-123456789012
                     name: Food & Groceries
-                    type: expense
-                ipAddresses:
+                hosts:
                   - id: d4e5f6a7-b8c9-0123-defa-234567890123
                     ipAddress: 192.168.1.42
                     status: active
@@ -1843,16 +1862,12 @@ paths:
                     userAgent: Mozilla/5.0 (X11; Linux x86_64) Chrome/120.0.6099.199
                     lastSeenAt: '2026-06-04T12:00:00Z'
                     createdAt: '2026-06-04T10:30:00Z'
-                conversations:
-                  - id: f6a7b8c9-d0e1-2345-fabc-456789012345
-                    title: Budget de juin
-                    userRequest: Combien j'ai dépensé ce mois-ci ?
-                    aiResponse: "Vous avez dépensé 320 000 Ar ce mois-ci"
-                    createdAt: '2026-06-05T14:30:00Z'
                 organizations:
-                  - id: e5f6a7b8-c9d0-1234-efab-345678901234
-                    name: Family Budget
+                  - organization:
+                      id: e5f6a7b8-c9d0-1234-efab-345678901234
+                      name: Family Budget
                     role: owner
+                    joinedAt: '2026-02-01T09:00:00Z'
                 exportedAt: '2026-06-05T14:30:00Z'
         '401':
           $ref: '#/components/responses/Unauthorized'
